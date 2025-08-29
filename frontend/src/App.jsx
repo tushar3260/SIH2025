@@ -6,12 +6,13 @@ import PatientDashboard from "./pages/PatientDashboard";
 import SignupPage from "./pages/SignupPage";
 import TherapyPage from "./pages/TherapyPage";
 import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
+import Therapies from "./pages/Therapies";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-       
+       <Route path="/therapies" element={<Therapies />} />
         <Route path="/" element={<AyurvedaLanding />} />
         <Route path="/dashboard" element={<PatientDashboard />} />
         <Route path="/login" element={<Login />} />

@@ -28,6 +28,18 @@ const therapySchema = new mongoose.Schema(
     description: { 
       type: String, 
       trim: true 
+    },
+
+    // References to users
+    patient: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User", 
+      required: [true, "Patient is required"] 
+    },
+    practitioner: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User", 
+      required: [true, "Practitioner is required"] 
     }
   },
   { 
