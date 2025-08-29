@@ -2,8 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AyurvedaLanding from "./pages/AyurvedaLanding";
 import Login from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import PatientDashboard from "./pages/PatientDashboard";
+import SignupPage from "./pages/SignupPage";
+
 
 const App = () => {
   return (

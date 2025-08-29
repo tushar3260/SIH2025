@@ -307,11 +307,12 @@ const AyurvedaLanding = () => {
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
        <Link
   to="/login"
-  className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-green-200 to-green-400 px-8 py-3 text-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-300 via-green-400 to-green-500 text-black px-7 py-3 text-lg font-semibold shadow-md hover:shadow-lg hover:from-green-400 hover:to-green-500 transition-all duration-300"
 >
-  <span className="text-green-900 group-hover:text-green-950 transition-colors">Get Started</span>
-  <ArrowRight className="w-5 h-5 text-green-900 group-hover:translate-x-1 transition-transform duration-300" />
+  Get Started
+  <ArrowRight className="w-5 h-5" />
 </Link>
+
         <a
           href="#contact"
           className="inline-flex items-center gap-2 rounded-full border-2 border-green-600 text-green-700 px-7 py-3 text-lg font-semibold hover:bg-green-600 hover:text-white transition"
