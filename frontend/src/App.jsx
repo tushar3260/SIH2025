@@ -4,7 +4,8 @@ import AyurvedaLanding from "./pages/AyurvedaLanding";
 import Login from "./pages/LoginPage";
 import PatientDashboard from "./pages/PatientDashboard";
 import SignupPage from "./pages/SignupPage";
-
+import TherapyPage from "./pages/TherapyPage";
+import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
 
 const App = () => {
   return (
@@ -15,6 +16,8 @@ const App = () => {
         <Route path="/dashboard" element={<PatientDashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignupPage />} />
+        <Route path="/therapy" element={<TherapyPage />} />
+        <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
       </Routes>
     </Router>
   );
