@@ -152,7 +152,11 @@ const LoginPage = () => {
           {/* Sign Up Link */}
           <div className="mt-8 text-center">
             <span className="text-gray-600">Don't have an account? </span>
-            <button className="text-green-600 hover:text-green-700 font-semibold transition-colors">
+            <button 
+            onClick={() => {
+              window.location.href = "/register";
+            }}
+            className="text-green-600 hover:text-green-700 font-semibold transition-colors">
               Create Account
             </button>
           </div>
