@@ -103,13 +103,12 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-green-200/20 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-amber-200/30 rounded-full animate-bounce"></div>
-        <div className="absolute bottom-20 left-20 w-20 h-20 bg-green-300/25 rounded-full animate-ping"></div>
-        <div className="absolute bottom-40 right-10 w-16 h-16 bg-amber-300/20 rounded-full animate-pulse"></div>
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-amber-100 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute -top-10 -left-10 w-60 h-60 bg-green-300/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl animate-ping" />
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-green-400/20 rounded-full blur-3xl animate-bounce" />
       </div>
 
       <div className="relative z-10 w-full max-w-sm">
@@ -147,7 +146,7 @@ const LoginPage = () => {
           )}
 
           {/* Login Form */}
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
             {/* Email Field */}
             <div className="space-y-1">
               <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
@@ -195,7 +194,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            {/* Remember + Forgot */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input 
@@ -215,10 +214,9 @@ const LoginPage = () => {
               </button>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
@@ -231,7 +229,7 @@ const LoginPage = () => {
                 </>
               )}
             </button>
-          </div>
+          </form>
 
           {/* Divider */}
           <div className="my-6 flex items-center">
@@ -277,7 +275,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Bottom Text */}
+        {/* Footer */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-500">
             By signing in, you agree to our{' '}
