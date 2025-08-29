@@ -312,14 +312,13 @@ const AyurvedaLanding = () => {
   Get Started
   <ArrowRight className="w-5 h-5" />
 </Link>
+<Link
+  to="/therapies"
+  className="inline-flex justify-center items-center rounded-full border-2 border-green-600 text-green-700 px-7 py-3 text-lg font-semibold hover:bg-green-600 hover:text-white transition"
+>
+  Book Therapy
+</Link>
 
-        <Link
-          to="/therapies  "
-          className="inline-flex items-center gap-2 rounded-full border-2 border-green-600 text-green-700 px-7 py-3 text-lg font-semibold hover:bg-green-600 hover:text-white transition"
-        >
-          Book Therapy
-          <ArrowRight className="w-5 h-5" />
-        </Link>
       </div>
 
       {/* Stats */}

@@ -24,6 +24,19 @@ export const getTherapyByUserId = async (req, res, next) => {
 };
 // ✅ Create a new therapy
 
+export const getTherapyByTherapyId = async (req, res, next) => {
+  try {
+    
+    const therapyId = req.params.therapyId;
+    const therapy = await Therapy.findById(therapyId).lean();
+    if (!therapy) {
+      return res.status(404).json({ message: "Therapy not found." });
+    }
+    return res.status(200).json(therapy);
+  } catch (error) {
+    next(new HttpError(500, "Failed to fetch therapy by ID"));
+  }
+}
 
 export const createTherapy = async (req, res, next) => {
   try {
