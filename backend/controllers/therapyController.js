@@ -11,33 +11,26 @@ export const listTherapies = async (req, res, next) => {
   }
 };
 
-// ✅ Create a new therapy - FIXED
+// ✅ Create a new therapy
 export const createTherapy = async (req, res, next) => {
   try {
-    // Fixed field names to match your form data
-    const { name, description, code, durationMin, price } = req.body;
-
-    console.log('Received data:', req.body); // Debug log
+    const { name, description,code, duration, price } = req.body;
 
     // Basic validation
-    if (!name || !code || !durationMin) {
-      throw new HttpError(400, "Name, code and duration are required");
+    if (!name || !description) {
+      throw new HttpError(400, "Name and description are required");
     }
 
     const therapy = await Therapy.create({
       name,
       description,
       code,
-      duration: parseInt(durationMin), // Convert durationMin to duration
-      price: price ? parseFloat(price) : 0,
+      duration,
+      price,
     });
 
     return res.status(201).json(therapy);
   } catch (err) {
-    console.error('Create therapy error:', err);
-    if (err.code === 11000) {
-      return res.status(400).json({ message: "Therapy name or code already exists" });
-    }
-    return res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
