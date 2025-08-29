@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../db/user.model.js';
+import User from '../models/User.js'; 
 
 /**
  * Protect routes — verify JWT token and attach user to `req`
