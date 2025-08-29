@@ -4,7 +4,7 @@ import { protect, permit } from "../middleware/auth.js";
 
 const r = Router();
 
-r.get("/me", protect, permit("patient"), getProfile);
-r.post("/me", protect, permit("patient"), createOrUpdateProfile);
+r.get("/me", getProfile);
+r.post("/me", createOrUpdateProfile);
 
 export default r;

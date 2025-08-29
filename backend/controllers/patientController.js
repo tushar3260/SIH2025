@@ -3,7 +3,8 @@ import User from "../models/User.js"
 
 export const getProfile = async (req, res, next) => {
   try {
-    const patient = await Patient.findOne({ user: req.user._id }).populate("user","name email phone").lean();
+    const paramsId = req.params.id;
+    const patient = await Patient.findOne({ paramsId }).populate("user","name email phone").lean();
     res.json(patient || { user: req.user });
   } catch (err) { next(err); }
 };

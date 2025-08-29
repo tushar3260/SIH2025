@@ -7,17 +7,25 @@ import { query } from "express-validator";
 
 const r = Router();
 
-r.get("/me", protect, permit("patient"), myAppointments);
+// Patient ke apne appointments
+r.get("/me/:userId", myAppointments);
 
-r.get("/slots", protect,
+// Practitioner ke slots
+r.get(
+  "/slots",
+  
   query("practitionerId").notEmpty(),
   query("therapyId").notEmpty(),
   query("from").notEmpty(),
   query("to").notEmpty(),
-  runValidation, slots);
+  
+  slots
+);
 
-r.post("/", protect, permit("patient"), bookValidation, runValidation, book);
+// Book new appointment
+r.post("/",  book);
 
-r.post("/:id/cancel", protect, cancel);
+// Cancel appointment
+r.post("/:id/cancel",  cancel);
 
 export default r;

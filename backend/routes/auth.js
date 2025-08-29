@@ -5,7 +5,7 @@ import { runValidation } from "../middleware/validation.js";
 
 const r = Router();
 
-r.post("/register", registerValidation, runValidation, register);
-r.post("/login", loginValidation, runValidation, login);
+r.post("/register",register);
+r.post("/login",  login);
 
 export default r;

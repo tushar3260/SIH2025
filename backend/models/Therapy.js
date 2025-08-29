@@ -1,11 +1,43 @@
 import mongoose from "mongoose";
 
-const schema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  code: { type: String, required:true, unique:true },
-  durationMin: { type: Number, required: true }, // duration in minutes
-  price: Number,
-  description: String
-}, { timestamps: true });
+const therapySchema = new mongoose.Schema(
+  {
+    name: { 
+      type: String, 
+      required: [true, "Therapy name is required"], 
+      unique: true, 
+      trim: true 
+    },
+    code: { 
+      type: String, 
+      required: [true, "Therapy code is required"], 
+      unique: true, 
+      uppercase: true, 
+      trim: true 
+    },
+    duration: { 
+      type: Number, 
+      required: [true, "Duration is required"], 
+      min: [1, "Duration must be at least 1 minute"] 
+    },
+    price: { 
+      type: Number, 
+      default: 0, 
+      min: [0, "Price cannot be negative"] 
+    },
+    description: { 
+      type: String, 
+      trim: true 
+    }
+  },
+  { 
+    timestamps: true,
+    versionKey: false // "__v" ko remove karne ke liye
+  }
+);
 
-export default mongoose.model("Therapy", schema);
+// Indexing (fast lookup ke liye)
+therapySchema.index({ name: 1 });
+therapySchema.index({ code: 1 });
+
+export default mongoose.model("Therapy", therapySchema);
