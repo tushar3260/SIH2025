@@ -52,7 +52,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen min-w-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-32 h-32 bg-green-200/20 rounded-full animate-pulse"></div>
@@ -323,7 +323,11 @@ const SignupPage = () => {
           {/* Sign In Link */}
           <div className="mt-8 text-center">
             <span className="text-gray-600">Already have an account? </span>
-            <button className="text-green-600 hover:text-green-700 font-semibold transition-colors">
+            <button 
+            onClick={() => {
+              window.location.href = "/login";
+            } }
+            className="text-green-600 hover:text-green-700 font-semibold transition-colors">
               Sign In
             </button>
           </div>
