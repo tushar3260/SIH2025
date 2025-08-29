@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Eye, EyeOff, Leaf, Mail, Lock, ArrowRight, User, Phone, Shield } from 'lucide-react';
 
 const SignupPage = () => {
@@ -14,45 +15,120 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  // API Base URL from environment
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setMessage({ type: '', text: '' });
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setMessage({ type: 'error', text: 'Name is required' });
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setMessage({ type: 'error', text: 'Email is required' });
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setMessage({ type: 'error', text: 'Please enter a valid email' });
+      return false;
+    }
+    if (formData.password.length < 8) {
+      setMessage({ type: 'error', text: 'Password must be at least 8 characters' });
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match' });
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     setIsLoading(true);
-    
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
-      setIsLoading(false);
-      return;
-    }
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Signup data:', {
-        ...formData,
-        passwordHash: formData.password // This would be hashed on backend
+    setMessage({ type: '', text: '' });
+
+    try {
+      // Axios POST request
+      const response = await axios.post(`${API_BASE_URL}/api/user/register`, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        password: formData.password
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 10000 // 10 seconds timeout
       });
+
+      // Success response
+      setMessage({ type: 'success', text: 'Account created successfully!' });
+      
+      // Store token and user data
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+
+      // Redirect after success
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 2000);
+
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || 'Registration failed. Please try again.';
+        setMessage({ type: 'error', text: errorMessage });
+      } else if (error.request) {
+        // Request was made but no response received
+        setMessage({ type: 'error', text: 'Network error. Please check your internet connection.' });
+      } else {
+        // Something else happened
+        setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      }
+    } finally {
       setIsLoading(false);
-      // Handle signup logic here
-    }, 1500);
+    }
   };
 
   const nextStep = () => {
+    if (currentStep === 1) {
+      if (!formData.name.trim() || !formData.email.trim()) {
+        setMessage({ type: 'error', text: 'Please fill in all required fields' });
+        return;
+      }
+      if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        setMessage({ type: 'error', text: 'Please enter a valid email address' });
+        return;
+      }
+    }
     if (currentStep < 2) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
+    setMessage({ type: '', text: '' });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen min-w-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-32 h-32 bg-green-200/20 rounded-full animate-pulse"></div>
@@ -62,7 +138,6 @@ const SignupPage = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Signup Card */}
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20">
           {/* Header */}
           <div className="text-center mb-8">
@@ -76,6 +151,17 @@ const SignupPage = () => {
             </h1>
             <p className="text-gray-600">Begin your wellness transformation</p>
           </div>
+
+          {/* Message Display */}
+          {message.text && (
+            <div className={`mb-6 p-4 rounded-xl text-sm font-medium ${
+              message.type === 'success' 
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {message.text}
+            </div>
+          )}
 
           {/* Progress Indicator */}
           <div className="flex justify-center mb-8">
@@ -92,63 +178,53 @@ const SignupPage = () => {
           {/* Step 1: Personal Info */}
           {currentStep === 1 && (
             <div className="space-y-6">
-              {/* Name Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <User className="w-4 h-4 text-green-600" />
-                  <span>Full Name</span>
+                  <span>Full Name *</span>
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="Enter your full name"
+                  required
+                />
               </div>
 
-              {/* Email Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-green-600" />
-                  <span>Email Address</span>
+                  <span>Email Address *</span>
                 </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="Enter your email"
+                  required
+                />
               </div>
 
-              {/* Phone Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-green-600" />
-                  <span>Phone Number (Optional)</span>
+                  <span>Phone Number</span>
                 </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="+91 98765 43210"
+                />
               </div>
 
-              {/* Role Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <Shield className="w-4 h-4 text-green-600" />
@@ -179,11 +255,10 @@ const SignupPage = () => {
           {/* Step 2: Password Setup */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              {/* Password Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <Lock className="w-4 h-4 text-green-600" />
-                  <span>Password</span>
+                  <span>Password *</span>
                 </label>
                 <div className="relative">
                   <input
@@ -205,11 +280,10 @@ const SignupPage = () => {
                 </div>
               </div>
 
-              {/* Confirm Password Field */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
                   <Lock className="w-4 h-4 text-green-600" />
-                  <span>Confirm Password</span>
+                  <span>Confirm Password *</span>
                 </label>
                 <div className="relative">
                   <input
@@ -276,6 +350,7 @@ const SignupPage = () => {
                 <button
                   onClick={prevStep}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all duration-300"
+                  disabled={isLoading}
                 >
                   Back
                 </button>
@@ -297,7 +372,7 @@ const SignupPage = () => {
             </div>
           )}
 
-          {/* Divider - Only show on step 1 */}
+          {/* Social Signup - Only on step 1 */}
           {currentStep === 1 && (
             <>
               <div className="my-8 flex items-center">
@@ -306,7 +381,6 @@ const SignupPage = () => {
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
-              {/* Social Signup */}
               <div className="space-y-3">
                 <button className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:shadow-md transition-all duration-300 flex items-center justify-center space-x-2">
                   <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
@@ -323,7 +397,12 @@ const SignupPage = () => {
           {/* Sign In Link */}
           <div className="mt-8 text-center">
             <span className="text-gray-600">Already have an account? </span>
-            <button className="text-green-600 hover:text-green-700 font-semibold transition-colors">
+            <button 
+              onClick={() => {
+                window.location.href = "/login";
+              }} 
+              className="text-green-600 hover:text-green-700 font-semibold transition-colors"
+            >
               Sign In
             </button>
           </div>
