@@ -103,7 +103,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-amber-100 overflow-hidden">
+    <div className="relative min-h-screen min-w-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-amber-100 overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
         <div className="absolute -top-10 -left-10 w-60 h-60 bg-green-300/30 rounded-full blur-3xl animate-pulse" />
@@ -285,15 +285,7 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {/* Quick Demo Info */}
-        <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-100">
-          <h3 className="text-sm font-semibold text-green-800 mb-2">🌟 Demo Credentials</h3>
-          <div className="text-xs text-green-700 space-y-1">
-            <p><strong>Email:</strong> demo@ayurveda.com</p>
-            <p><strong>Password:</strong> demo123</p>
-            <p className="text-green-600 mt-2">Try the demo or create a new account!</p>
-          </div>
-        </div>
+
       </div>
     </div>
   );

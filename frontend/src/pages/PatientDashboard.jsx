@@ -118,7 +118,7 @@ const PatientDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 font-sans">
+    <div className="flex min-h-screen min-w-screen bg-gray-50 font-sans">
       {/* Sidebar */}
       <div className="w-80 bg-white shadow-lg flex flex-col">
         {/* Logo Header */}

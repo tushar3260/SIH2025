@@ -25,6 +25,7 @@ import {
   ArrowUp,
   Activity,
   Lock,
+  ArrowRight,
   CheckCircle2,
 } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
@@ -272,8 +273,15 @@ const AyurvedaLanding = () => {
         )}
       </nav>
 
-      {/* Hero Section */}
-    
+      {/* Hero */}
+<section
+  id="home"
+  className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-amber-50"
+>
+  {/* Decorative blobs */}
+  <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-green-200/40 blur-3xl" />
+  <div className="pointer-events-none absolute -bottom-24 -right-24 h-[28rem] w-[28rem] rounded-full bg-amber-200/40 blur-3xl" />
+
   <div className="relative z-[1] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 grid md:grid-cols-2 gap-12 items-center">
     {/* Left content */}
     <FadeIn delay={0.05} className="order-2 md:order-1">
@@ -297,12 +305,14 @@ const AyurvedaLanding = () => {
       </p>
 
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
-        <a
-          href="#features"
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-7 py-3 text-lg font-semibold shadow hover:shadow-lg transition"
-        >
-          Explore Features <ChevronRight className="w-5 h-5" />
-        </a>
+       <Link
+  to="/login"
+  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-300 via-green-400 to-green-500 text-black px-7 py-3 text-lg font-semibold shadow-md hover:shadow-lg hover:from-green-400 hover:to-green-500 transition-all duration-300"
+>
+  Get Started
+  <ArrowRight className="w-5 h-5" />
+</Link>
+
         <a
           href="#contact"
           className="inline-flex items-center gap-2 rounded-full border-2 border-green-600 text-green-700 px-7 py-3 text-lg font-semibold hover:bg-green-600 hover:text-white transition"
@@ -375,10 +385,11 @@ const AyurvedaLanding = () => {
             <div className="font-semibold">Trusted by 100+ Clinics</div>
             <div className="text-gray-500 text-xs">NABH Inspired Standards</div>
           </div>
+        </div>
       </div>
-    </div>
-  </FadeIn>
-</div>
+    </FadeIn>
+  </div>
+</section>
 
 
       {/* About */}
