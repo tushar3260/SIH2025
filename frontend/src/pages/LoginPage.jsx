@@ -55,7 +55,8 @@ const LoginPage = () => {
       `${import.meta.env.VITE_API_BASE_URL}/user/login`,
       formData
     );
-
+   localStorage.setItem('token', response.data.token);
+   localStorage.setItem('user', JSON.stringify(response.data.user));
     // Example: API returns { success: true, message: "...", token: "..." }
     if (response.data.success) {
       setMessage({ type: 'success', text: response.data.message || 'Login successful! Redirecting...' });

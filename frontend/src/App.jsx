@@ -8,7 +8,7 @@ import TherapyPage from "./pages/TherapyPage";
 import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
 import Therapies from "./pages/Therapies";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
-
+import UserProvider from "./context/UserContext";
 const App = () => {
   return (
     <Router>
@@ -20,10 +20,15 @@ const App = () => {
         <Route path="/register" element={<SignupPage />} />
         <Route path="/therapy" element={<TherapyPage />} />
         <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
-        <Route path="/create-therapy" element={<CreateTherapyForm />} />
+        <Route path="/create-therapy" element={
+          <UserProvider>
+            <CreateTherapyForm />
+          </UserProvider>
+        } />
 
       </Routes>
     </Router>
+    
   );
 };
 
