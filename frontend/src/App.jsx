@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AyurvedaLanding from "./pages/AyurvedaLanding";
-import Login from "./pages/Login";
+import Login from "./pages/LoginPage";
 
 const App = () => {
   return (
