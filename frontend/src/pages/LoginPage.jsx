@@ -28,7 +28,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-amber-100 overflow-hidden">
+    <div className="relative min-h-screen min-w-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-amber-100 overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
         <div className="absolute -top-10 -left-10 w-60 h-60 bg-green-300/30 rounded-full blur-3xl animate-pulse" />
