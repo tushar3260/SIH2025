@@ -2,7 +2,7 @@ import express from "express";
 import connectToDb from "./db/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import UserRoutes from "./routes/user.routes.js"
+import UserRoutes from "./routes/patient.routes.js"
 
 // import Workspaceoutes from "./routes/workspace.routes.js";
 const app = express();
@@ -17,7 +17,7 @@ app.use(cors(
 app.use(cookieParser());
 connectToDb()
 
-app.use("/api/user", UserRoutes);
+app.use("/api/patient", UserRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World");

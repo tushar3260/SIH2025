@@ -1,5 +1,5 @@
 // controllers/auth.controller.js
-import User from "../db/user.model.js";
+import User from "../db/patient.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
