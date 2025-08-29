@@ -1,13 +1,15 @@
 import React from "react";
 import AyurvedaLanding from "./pages/AyurvedaLanding";
-import Login from "./pages/Login";
+import LoginPage from "./pages/LoginPage.jsx";
 
 
 const App = () => {
   return (
     <>
-      {/* <AyurvedaLanding />  */}
-      <Login />
+      {/* <AyurvedaLanding /> */}
+      <LoginPage />
+
+      
     </>  
   );
 }
