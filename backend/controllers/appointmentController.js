@@ -1,5 +1,5 @@
 import Appointment from "../models/Appointment.js";
-import Practitioner from "../models/Practitioner.js";
+import Practitioner from "../models/Practicioner.js"
 import Therapy from "../models/Therapy.js";
 import { generateSlots, hasConflict, fitsAvailability } from "../services/scheduling.js";
 import { notifyBooking } from "../services/notificationService.js";

@@ -1,4 +1,4 @@
-import Practitioner from "../models/Practitioner.js";
+import Practitioner from "../models/Practicioner.js";
 import User from "../models/User.js";
 
 export const listPractitioners = async (req, res, next) => {

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import Practitioner from "../models/Practitioner.js";
+import Practitioner from "../models/Practicioner.js";
 import Appointment from "../models/Appointment.js";
 
 /** overlap check */
