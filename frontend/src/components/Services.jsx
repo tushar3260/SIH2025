@@ -7,12 +7,18 @@ import { Badge } from './ui/badge';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export function Services({ onBookAppointment }) {
+  const formatINR = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format;
+
   const services = [
     {
       name: 'Abhyanga',
       description: 'Full-body warm oil massage that nourishes the skin, calms the nervous system, and promotes deep relaxation.',
       duration: '90 mins',
-      price: '$150',
+      price: 7499,
       rating: 4.9,
       popular: true,
       benefits: ['Stress Relief', 'Improved Circulation', 'Detoxification'],
@@ -21,7 +27,7 @@ export function Services({ onBookAppointment }) {
       name: 'Shirodhara',
       description: 'Continuous pouring of warm oil on the forehead to calm the mind and treat anxiety, insomnia, and stress.',
       duration: '60 mins',
-      price: '$120',
+      price: 6299,
       rating: 4.8,
       popular: false,
       benefits: ['Mental Clarity', 'Better Sleep', 'Anxiety Relief'],
@@ -30,7 +36,7 @@ export function Services({ onBookAppointment }) {
       name: 'Panchakarma',
       description: 'Comprehensive detoxification program designed to eliminate toxins and restore natural balance.',
       duration: '5-7 days',
-      price: '$800',
+      price: 19999,
       rating: 5.0,
       popular: true,
       benefits: ['Deep Detox', 'Immune Boost', 'Rejuvenation'],
@@ -39,7 +45,7 @@ export function Services({ onBookAppointment }) {
       name: 'Udvartana',
       description: 'Herbal powder massage that helps with weight management, improves skin texture, and enhances circulation.',
       duration: '75 mins',
-      price: '$130',
+      price: 6799,
       rating: 4.7,
       popular: false,
       benefits: ['Weight Management', 'Skin Health', 'Lymphatic Drainage'],
@@ -48,7 +54,7 @@ export function Services({ onBookAppointment }) {
       name: 'Nasya',
       description: 'Nasal therapy using medicated oils to treat respiratory issues, headaches, and sinus problems.',
       duration: '45 mins',
-      price: '$80',
+      price: 5199,
       rating: 4.6,
       popular: false,
       benefits: ['Respiratory Health', 'Sinus Relief', 'Mental Clarity'],
@@ -57,7 +63,7 @@ export function Services({ onBookAppointment }) {
       name: 'Ayurvedic Consultation',
       description: 'Personalized assessment of your constitution (Prakriti) and current state (Vikriti) with lifestyle recommendations.',
       duration: '60 mins',
-      price: '$100',
+      price: 5999,
       rating: 4.9,
       popular: true,
       benefits: ['Personalized Plan', 'Lifestyle Guidance', 'Health Assessment'],
@@ -107,7 +113,7 @@ export function Services({ onBookAppointment }) {
                     <Star className="w-5 h-5 text-yellow-500 fill-current" />
                     <span className="text-gray-700">4.9 rating</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-600">$320</div>
+                  <div className="text-2xl font-bold text-green-600">{formatINR(14999)}</div>
                 </div>
                 <Button 
                   onClick={onBookAppointment}
@@ -170,7 +176,7 @@ export function Services({ onBookAppointment }) {
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-green-100">
-                    <div className="text-2xl font-bold text-green-600">{service.price}</div>
+                    <div className="text-2xl font-bold text-green-600">{formatINR(service.price)}</div>
                     <Button 
                       onClick={onBookAppointment}
                       variant="outline" 

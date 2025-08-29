@@ -22,14 +22,20 @@ export function BookingForm({ isOpen, onClose }) {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const formatINR = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format;
+
   const therapies = [
-    { value: 'consultation', label: 'Ayurvedic Consultation', duration: '60 mins', price: '$100' },
-    { value: 'abhyanga', label: 'Abhyanga (Full Body Massage)', duration: '90 mins', price: '$150' },
-    { value: 'shirodhara', label: 'Shirodhara (Oil Pouring)', duration: '60 mins', price: '$120' },
-    { value: 'panchakarma', label: 'Panchakarma Program', duration: '5-7 days', price: '$800' },
-    { value: 'udvartana', label: 'Udvartana (Herbal Powder Massage)', duration: '75 mins', price: '$130' },
-    { value: 'nasya', label: 'Nasya (Nasal Therapy)', duration: '45 mins', price: '$80' },
-    { value: 'wellness-package', label: 'Complete Wellness Package', duration: '3 sessions', price: '$320' },
+    { value: 'consultation', label: 'Ayurvedic Consultation', duration: '60 mins', price: 5999 },
+    { value: 'abhyanga', label: 'Abhyanga (Full Body Massage)', duration: '90 mins', price: 7499 },
+    { value: 'shirodhara', label: 'Shirodhara (Oil Pouring)', duration: '60 mins', price: 6299 },
+    { value: 'panchakarma', label: 'Panchakarma Program', duration: '5-7 days', price: 19999 },
+    { value: 'udvartana', label: 'Udvartana (Herbal Powder Massage)', duration: '75 mins', price: 6799 },
+    { value: 'nasya', label: 'Nasya (Nasal Therapy)', duration: '45 mins', price: 5199 },
+    { value: 'wellness-package', label: 'Complete Wellness Package', duration: '3 sessions', price: 14999 },
   ];
 
   const timeSlots = [
@@ -172,7 +178,7 @@ export function BookingForm({ isOpen, onClose }) {
                         <div className="flex flex-col">
                           <span className="font-medium">{therapy.label}</span>
                           <span className="text-sm text-gray-500">
-                            {therapy.duration} • {therapy.price}
+                            {therapy.duration} • {formatINR(therapy.price)}
                           </span>
                         </div>
                       </SelectItem>
@@ -191,7 +197,7 @@ export function BookingForm({ isOpen, onClose }) {
                   <p className="text-green-700">{selectedTherapy.label}</p>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-green-600">
                     <span>Duration: {selectedTherapy.duration}</span>
-                    <span>Price: {selectedTherapy.price}</span>
+                    <span>Price: {formatINR(selectedTherapy.price)}</span>
                   </div>
                 </motion.div>
               )}

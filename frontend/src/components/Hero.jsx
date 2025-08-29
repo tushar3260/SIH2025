@@ -20,6 +20,7 @@ export function Hero({ onBookAppointment }) {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
+        <div className="absolute inset-0 bg-green-700/60"></div>
       </div>
 
       <div className="absolute inset-0 z-10">
@@ -53,10 +54,7 @@ export function Hero({ onBookAppointment }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Discover the Ancient
-            <span className="block bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
-              Art of Ayurveda
-            </span>
+            Discover the art of Ayurveda and Panchkarma
           </motion.h1>
 
           <motion.p 
@@ -80,13 +78,6 @@ export function Hero({ onBookAppointment }) {
             >
               Book Your Consultation
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="border-2 border-white text-white hover:bg-white hover:text-green-800 px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
-            >
-              Learn More
             </Button>
           </motion.div>
 

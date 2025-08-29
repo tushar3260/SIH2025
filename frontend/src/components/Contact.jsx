@@ -179,7 +179,7 @@ export function Contact({ onBookAppointment }) {
                   <Leaf className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-semibold text-gray-800">
-                  AyurVeda Wellness
+                  AyurSutra
                 </span>
               </div>
               <p className="text-gray-600 leading-relaxed">
@@ -216,7 +216,7 @@ export function Contact({ onBookAppointment }) {
 
           <div className="border-t border-green-200 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-600 text-sm mb-4 md:mb-0">
-              © 2024 AyurVeda Wellness Center. All rights reserved.
+              © 2024 AyurSutra. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-600 hover:text-green-600 text-sm transition-colors">

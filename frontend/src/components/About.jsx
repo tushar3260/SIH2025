@@ -53,19 +53,15 @@ export function About() {
             transition={{ duration: 0.8 }}
           >
             <h3 className="text-3xl font-bold text-gray-800 mb-6">
-              The Science of Life & Longevity
+              Panchakarma – The Path to Inner Cleansing & Renewal
             </h3>
-            
+
             <p className="text-gray-600 text-lg mb-6 leading-relaxed">
-              Ayurveda, the world's oldest healing system, originated in India over 5,000 years ago. 
-              The word "Ayurveda" comes from the Sanskrit words "ayur" (life) and "veda" (knowledge), 
-              literally meaning "the science of life."
+              Panchakarma, one of the most renowned therapies in Ayurveda, is a holistic detoxification and rejuvenation process that has been practiced for thousands of years. The word "Panchakarma" comes from the Sanskrit words "pancha" (five) and "karma" (actions), referring to the five therapeutic procedures designed to cleanse the body of toxins.
             </p>
-            
+
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-              Our center combines traditional Ayurvedic principles with modern wellness practices 
-              to create personalized treatment plans that address your unique constitutional type 
-              and health goals.
+              Our center offers authentic Panchakarma treatments that restore balance, strengthen immunity, and revitalize the body and mind. By combining time-tested Ayurvedic therapies with modern wellness practices, we create customized programs that help you achieve deep healing, renewal, and long-lasting vitality.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-6">
@@ -95,8 +91,8 @@ export function About() {
           >
             <div className="relative overflow-hidden rounded-2xl shadow-2xl">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1677599082447-6549af4c5454?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxheXVydmVkaWMlMjBoZXJicyUyMHNwaWNlcyUyMG5hdHVyYWwlMjBtZWRpY2luZXxlbnwxfHx8fDE3NTU4NjE2NjF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Ayurvedic herbs and natural medicine"
+                src="https://i.pinimg.com/736x/45/ba/75/45ba75481d3c68f2ff7311ce037dd0c8.jpg"
+                alt="Panchakarma and Ayurvedic wellness"
                 className="w-full h-[500px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-green-900/20 to-transparent"></div>
