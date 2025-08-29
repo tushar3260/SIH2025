@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 const TherapyForm = ({ isOpen, onClose, onSubmit }) => {
@@ -25,39 +24,26 @@ const TherapyForm = ({ isOpen, onClose, onSubmit }) => {
     setIsSubmitting(true);
     setError('');
 
-    console.log('Form submitted with data:', formData); // Debug log
+    console.log('Form submitted with data:', formData);
 
     try {
-      // Convert durationMin and price to numbers
-      const submitData = {
-        ...formData,
-        durationMin: parseInt(formData.durationMin),
-        price: formData.price ? parseFloat(formData.price) : undefined
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create therapy object with dummy ID
+      const newTherapy = {
+        _id: Date.now().toString(), // Dummy ID
+        name: formData.name.trim(),
+        code: formData.code.trim().toUpperCase(),
+        duration: parseInt(formData.durationMin),
+        price: formData.price ? parseFloat(formData.price) : 0,
+        description: formData.description.trim(),
+        createdAt: new Date().toISOString()
       };
 
-      console.log('Sending data to server:', submitData); // Debug log
-
-      // Updated API endpoint - make sure this matches your backend route
-      const response = await fetch('http://localhost:3001/api/therapies', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      console.log('Response status:', response.status); // Debug log
-      console.log('Response ok:', response.ok); // Debug log
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error:', errorText); // Debug log
-        throw new Error(`Failed to create therapy: ${response.status} ${errorText}`);
-      }
-
-      const newTherapy = await response.json();
-      console.log('Created therapy:', newTherapy); // Debug log
+      console.log('Created therapy (local):', newTherapy);
       
+      // Call parent component's onSubmit
       onSubmit(newTherapy);
       
       // Reset form
@@ -70,14 +56,14 @@ const TherapyForm = ({ isOpen, onClose, onSubmit }) => {
       });
       onClose();
     } catch (err) {
-      console.error('Fetch error:', err); // Debug log
+      console.error('Form error:', err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Add dummy data function for testing
+  // Dummy data function
   const fillDummyData = () => {
     setFormData({
       name: 'Abhyanga Massage',
@@ -96,7 +82,6 @@ const TherapyForm = ({ isOpen, onClose, onSubmit }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Add New Therapy</h2>
           <div className="flex gap-2">
-            {/* Dummy data button for testing */}
             <button
               type="button"
               onClick={fillDummyData}
@@ -160,9 +145,9 @@ const TherapyForm = ({ isOpen, onClose, onSubmit }) => {
               value={formData.durationMin}
               onChange={handleChange}
               required
-              min="1"
+              min="15"
               className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Duration in minutes"
+              placeholder="Duration in minutes (min: 15)"
             />
           </div>
 

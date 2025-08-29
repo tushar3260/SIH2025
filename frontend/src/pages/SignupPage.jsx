@@ -58,7 +58,8 @@ const SignupPage = () => {
         `${import.meta.env.VITE_API_BASE_URL}/user/register`,
         formData
       );
-
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       console.log('API response:', response.data);
 
       if (response.data.success) {
