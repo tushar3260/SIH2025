@@ -7,6 +7,6 @@ import { body } from "express-validator";
 const r = Router();
 
 r.get("/", listTherapies);
-r.post("/", protect, permit("admin"), body("name").notEmpty(), body("durationMin").isInt({min:15}), runValidation, createTherapy);
+r.post("/",  body("name").notEmpty(), body("durationMin").isInt({min:15}), createTherapy);
 
 export default r;

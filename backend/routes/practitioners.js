@@ -7,7 +7,7 @@ import { body } from "express-validator";
 const r = Router();
 
 r.get("/", listPractitioners);
-r.post("/", protect, permit("admin"), body("user").notEmpty(), runValidation, createPractitioner);
-r.put("/:id/availability", protect, permit("admin","practitioner"), body("availability").isArray(), runValidation, updateAvailability);
+r.post("/",   body("user").notEmpty(), runValidation, createPractitioner);
+r.put("/:id/availability", protect, permit("admin","practitioner"), body("availability").isArray(),  updateAvailability);
 
 export default r;

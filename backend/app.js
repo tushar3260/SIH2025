@@ -7,6 +7,7 @@ import patientroutes from './routes/patients.js'
 import appointmentroutes from './routes/appoinments.js'
 import PracticionerRoutes from "./routes/practitioners.js";
 import recordRoutes from "./routes/record.js"
+import therepyRoutes from "./routes/therapies.js"
 // import Workspaceoutes from "./routes/workspace.routes.js";
 const app = express();
 app.use(express.json());
@@ -21,8 +22,11 @@ app.use(cookieParser());
 connectToDb()
 
 app.use("/api/user", UserRoutes);
+app.use("/api/therapies", therepyRoutes);
+app.use("/api/practitioners", PracticionerRoutes);
 app.use("/api/patients", patientroutes);
 app.use("/api/appointments", appointmentroutes);
+app.use("/api/records", recordRoutes);
 app.get("/", (req, res) => {
     res.send("Hello World");
 });

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Leaf, Mail, Lock, ArrowRight, User, Phone, Shield } from 'lucide-react';
+import axios from 'axios';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -17,10 +18,7 @@ const SignupPage = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     setMessage({ type: '', text: '' });
   };
 
@@ -48,6 +46,7 @@ const SignupPage = () => {
     return true;
   };
 
+  
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -55,18 +54,30 @@ const SignupPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setMessage({ type: 'success', text: 'Account created successfully!' });
-      
-      // Simulate redirect after success
-      setTimeout(() => {
-        alert('Registration successful! Would redirect to dashboard.');
-      }, 1500);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/user/register`,
+        formData
+      );
 
+      console.log('API response:', response.data);
+
+      if (response.data.success) {
+        setMessage({ type: 'success', text: response.data.message || 'Account created successfully!' });
+        
+        // Use React Router navigation
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1500);
+
+      } else {
+        setMessage({ type: 'error', text: response.data.message || 'Registration failed. Please try again.' });
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      console.error('API error:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Something went wrong. Please try again.'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -92,8 +103,8 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-3">
-      {/* Background Elements */}
+    <div className="min-h-screen min-w-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-3 relative">
+      {/* Background circles */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-16 left-8 w-24 h-24 bg-green-200/20 rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-16 w-20 h-20 bg-amber-200/30 rounded-full animate-bounce"></div>
@@ -110,18 +121,14 @@ const SignupPage = () => {
                 <Leaf className="w-6 h-6 text-white" />
               </div>
             </div>
-            <h1 className="text-xl font-bold text-gray-800 mb-1">
-              Join AyurVeda
-            </h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-1">Join AyurVeda</h1>
             <p className="text-sm text-gray-600">Begin your wellness transformation</p>
           </div>
 
           {/* Message Display */}
           {message.text && (
             <div className={`mb-4 p-3 rounded-lg text-xs font-medium ${
-              message.type === 'success' 
-                ? 'bg-green-50 text-green-700 border border-green-200' 
-                : 'bg-red-50 text-red-700 border border-red-200'
+              message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               {message.text}
             </div>
@@ -130,22 +137,18 @@ const SignupPage = () => {
           {/* Progress Indicator */}
           <div className="flex justify-center mb-6">
             <div className="flex space-x-2">
-              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentStep >= 1 ? 'bg-green-600' : 'bg-gray-200'
-              }`}></div>
-              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentStep >= 2 ? 'bg-green-600' : 'bg-gray-200'
-              }`}></div>
+              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep >= 1 ? 'bg-green-600' : 'bg-gray-200'}`}></div>
+              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${currentStep >= 2 ? 'bg-green-600' : 'bg-gray-200'}`}></div>
             </div>
           </div>
 
-          {/* Step 1: Personal Info */}
+          {/* Step 1 */}
           {currentStep === 1 && (
             <div className="space-y-4">
+              {/* Name */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <User className="w-4 h-4 text-green-600" />
-                  <span>Full Name *</span>
+                  <User className="w-4 h-4 text-green-600" /> <span>Full Name *</span>
                 </label>
                 <input
                   type="text"
@@ -158,10 +161,10 @@ const SignupPage = () => {
                 />
               </div>
 
+              {/* Email */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <Mail className="w-4 h-4 text-green-600" />
-                  <span>Email Address *</span>
+                  <Mail className="w-4 h-4 text-green-600" /> <span>Email Address *</span>
                 </label>
                 <input
                   type="email"
@@ -174,10 +177,10 @@ const SignupPage = () => {
                 />
               </div>
 
+              {/* Phone */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <Phone className="w-4 h-4 text-green-600" />
-                  <span>Phone Number</span>
+                  <Phone className="w-4 h-4 text-green-600" /> <span>Phone Number</span>
                 </label>
                 <input
                   type="tel"
@@ -189,10 +192,10 @@ const SignupPage = () => {
                 />
               </div>
 
+              {/* Role */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <Shield className="w-4 h-4 text-green-600" />
-                  <span>Account Type</span>
+                  <Shield className="w-4 h-4 text-green-600" /> <span>Account Type</span>
                 </label>
                 <select
                   name="role"
@@ -210,154 +213,74 @@ const SignupPage = () => {
                 onClick={nextStep}
                 className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 text-sm rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
               >
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continue</span> <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
 
-          {/* Step 2: Password Setup */}
+          {/* Step 2 */}
           {currentStep === 2 && (
             <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <Lock className="w-4 h-4 text-green-600" />
-                  <span>Password *</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2.5 pr-10 text-sm border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-all duration-300 bg-white shadow-sm"
-                    placeholder="Create a strong password"
-                    required 
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+              {/* Password & Confirm */}
+              {['password', 'confirmPassword'].map((field, i) => (
+                <div key={field} className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
+                    <Lock className="w-4 h-4 text-green-600" /> <span>{field === 'password' ? 'Password *' : 'Confirm Password *'}</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={field === 'password' ? (showPassword ? 'text' : 'password') : (showConfirmPassword ? 'text' : 'password')}
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2.5 pr-10 text-sm border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-all duration-300 bg-white shadow-sm"
+                      placeholder={field === 'password' ? 'Create a strong password' : 'Confirm your password'}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => field === 'password' ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-600 transition-colors"
+                    >
+                      {field === 'password' ? (showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />) :
+                        (showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />)}
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
-                  <Lock className="w-4 h-4 text-green-600" />
-                  <span>Confirm Password *</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2.5 pr-10 text-sm border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-all duration-300 bg-white shadow-sm"
-                    placeholder="Confirm your password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-600 transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
+              ))}
 
               {/* Password Requirements */}
               <div className="bg-green-50 rounded-lg p-3 border border-green-100">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Password Requirements:</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      formData.password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'
-                    }`}></div>
-                    <span>At least 8 characters</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      /[A-Z]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'
-                    }`}></div>
-                    <span>One uppercase letter</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      /[0-9]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'
-                    }`}></div>
-                    <span>One number</span>
-                  </li>
+                  <li className={`flex items-center space-x-2`}><div className={`w-2 h-2 rounded-full ${formData.password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'}`}></div><span>At least 8 characters</span></li>
+                  <li className={`flex items-center space-x-2`}><div className={`w-2 h-2 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></div><span>One uppercase letter</span></li>
+                  <li className={`flex items-center space-x-2`}><div className={`w-2 h-2 rounded-full ${/[0-9]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></div><span>One number</span></li>
                 </ul>
               </div>
 
-              {/* Terms and Conditions */}
+              {/* Terms */}
               <div className="flex items-start space-x-2">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-0.5" 
-                  required 
-                />
-                <span className="text-sm text-gray-600">
-                  I agree to the{' '}
-                  <button className="text-green-600 hover:underline">Terms</button>
-                  {' '}and{' '}
-                  <button className="text-green-600 hover:underline">Privacy Policy</button>
-                </span>
+                <input type="checkbox" className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-0.5" required />
+                <span className="text-sm text-gray-600">I agree to the <button className="text-green-600 hover:underline">Terms</button> and <button className="text-green-600 hover:underline">Privacy Policy</button></span>
               </div>
 
-              {/* Action Buttons */}
+              {/* Buttons */}
               <div className="flex space-x-3">
-                <button
-                  onClick={prevStep}
-                  className="flex-1 bg-gray-200 text-gray-700 py-2.5 text-sm rounded-lg font-semibold hover:bg-gray-300 transition-all duration-300"
-                  disabled={isLoading}
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 text-sm rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <span>Create Account</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
+                <button onClick={prevStep} className="flex-1 bg-gray-200 text-gray-700 py-2.5 text-sm rounded-lg font-semibold hover:bg-gray-300 transition-all duration-300" disabled={isLoading}>Back</button>
+                <button onClick={handleSubmit} disabled={isLoading} className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 text-sm rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isLoading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> : <>
+                    <span>Create Account</span> <ArrowRight className="w-4 h-4" />
+                  </>}
                 </button>
               </div>
             </div>
           )}
 
-          {/* Social Signup - Only on step 1 */}
-          {currentStep === 1 && (
-            <>
-              <div className="my-6 flex items-center">
-                <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-3 text-xs text-gray-500">or</span>
-                <div className="flex-1 border-t border-gray-200"></div>
-              </div>
-            </>
-          )}
-
-          {/* Sign In Link */}
+          {/* Sign In */}
           <div className="mt-6 text-center">
             <span className="text-sm text-gray-600">Already have an account? </span>
-            <button 
-              onClick={() => {
-                window.location.href = "/login";
-              }} 
-              className="text-sm text-green-600 hover:text-green-700 font-semibold transition-colors"
-            >
-              Sign In
-            </button>
+            <button onClick={() => window.location.href = "/login"} className="text-sm text-green-600 hover:text-green-700 font-semibold transition-colors">Sign In</button>
           </div>
         </div>
       </div>
