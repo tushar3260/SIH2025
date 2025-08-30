@@ -467,7 +467,7 @@ const PatientDashboard = () => {
 
                         {/* Book Appointment Button */}
                         <button
-                          onClick={() => navigate('/appointments')} // ✅ Navigate to appointments
+                          onClick={() => navigate(`/book/${therapy.id}`)} // ✅ Navigate to appointments
                           className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 
                           bg-gradient-to-r from-emerald-500 to-amber-500 text-white font-semibold 
                           shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
