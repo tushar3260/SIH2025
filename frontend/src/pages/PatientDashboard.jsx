@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ Add this import
 import { 
   Home, Calendar, List, TrendingUp, Lightbulb, Heart, Settings, HelpCircle,
   Activity, Clock, ArrowUp, FileText
@@ -6,8 +7,8 @@ import {
 import { Leaf, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
 
-
 const PatientDashboard = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigate hook
   const [activeSection, setActiveSection] = useState('dashboard');
   const [notifications, setNotifications] = useState(3);
   const [records, setRecords] = useState([]);
@@ -18,7 +19,7 @@ const PatientDashboard = () => {
 
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard', active: true },
-    { id: 'appointments', icon: Calendar, label: 'Appointments', count: 2 },
+    { id: 'appointments', icon: Calendar, label: 'Appointments', count: 2, navigate: true }, // ✅ Add navigate flag
     { id: 'therapies', icon: List, label: 'Therapies' },
     { id: 'progress', icon: TrendingUp, label: 'Progress' },
     { id: 'recommendations', icon: Lightbulb, label: 'Recommendations' },
@@ -30,6 +31,17 @@ const PatientDashboard = () => {
     { id: 'settings', icon: Settings, label: 'Settings' },
     { id: 'help', icon: HelpCircle, label: 'Help' }
   ];
+
+  // ✅ Handle navigation and section changes
+  const handleNavigation = (item) => {
+    if (item.navigate) {
+      // Navigate to the route for items that need routing
+      navigate(`/${item.id}`);
+    } else {
+      // Set active section for items that stay on the same page
+      setActiveSection(item.id);
+    }
+  };
 
   // Dummy therapy schedule
   const therapySchedule = [
@@ -76,7 +88,7 @@ const PatientDashboard = () => {
   useEffect(() => {
     if (activeSection === "therapies") {
       setLoading(true);
-      fetch("http://localhost:5000/api/therapies/user/68b211ed14a9228cd7fe43bd") // ✅ apna backend endpoint
+      fetch("http://localhost:5000/api/therapies/user/68b211ed14a9228cd7fe43bd")
         .then(res => res.json())
         .then(data => {
           setTherapies(data);
@@ -110,7 +122,7 @@ const PatientDashboard = () => {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => handleNavigation(item)} // ✅ Updated click handler
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive ? 'bg-emerald-50 text-emerald-700 shadow-sm border-l-4 border-emerald-500' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
@@ -119,6 +131,12 @@ const PatientDashboard = () => {
                   <Icon size={20} />
                   <span className="font-medium">{item.label}</span>
                 </div>
+                {/* ✅ Show count badge for appointments */}
+                {item.count && (
+                  <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
+                    {item.count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -130,7 +148,7 @@ const PatientDashboard = () => {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => handleNavigation(item)} // ✅ Updated click handler
                 className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-colors"
               >
                 <Icon size={20} />
@@ -175,8 +193,15 @@ const PatientDashboard = () => {
 
               {/* Therapy Schedule */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-6 border-b border-gray-200">
+                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                   <h2 className="text-xl font-semibold text-gray-900">Therapy Schedule</h2>
+                  {/* ✅ Add "View All Appointments" button */}
+                  <button 
+                    onClick={() => navigate('/appointments')}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 text-sm font-medium"
+                  >
+                    View All Appointments
+                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -232,88 +257,87 @@ const PatientDashboard = () => {
 
           {/* Therapies Section */}
           {activeSection === "therapies" && (
-  <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
-    {/* Header */}
-    <div className="text-center mb-12">
-      <div className="flex items-center justify-center gap-2">
-        <Leaf className="text-emerald-600" size={32} />
-        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-emerald-600 to-amber-600 bg-clip-text text-transparent">
-          Therapies
-        </h1>
-      </div>
-      <p className="mt-3 text-gray-600 text-lg">
-        Explore our curated Panchakarma and Ayurveda therapies for healing,
-        detox, and rejuvenation 🌿
-      </p>
-    </div>
-
-    {/* Therapies Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-      {loading ? (
-        <p className="text-gray-500 col-span-full">Loading therapies...</p>
-      ) : (
-        therapies.map((therapy, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:-translate-y-1 
-                       border border-emerald-100 hover:border-emerald-200 transition-all 
-                       duration-300 flex flex-col"
-          >
-            <div className="p-6 flex flex-col flex-grow">
-              {/* Therapy Code */}
-              <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wide">
-                {therapy.code || "AYU-THERAPY"}
-              </span>
-
-              {/* Therapy Name */}
-              <h2 className="text-2xl font-bold text-gray-900 mt-2 mb-4">
-                {therapy.name}
-              </h2>
-
-              {/* Description */}
-              <p className="text-gray-600 text-sm flex-grow mb-5 leading-relaxed">
-                {therapy.description || "No description available"}
-              </p>
-
-              {/* Duration & Price */}
-              <div className="flex justify-between items-center text-sm font-medium mb-5">
-                <span className="flex items-center gap-1 text-emerald-700">
-                  <Clock size={18} /> {therapy.duration || "30"} min
-                </span>
-                <span className="flex items-center gap-1 text-amber-700">
-                  <IndianRupee size={18} /> {therapy.price || "1000"}
-                </span>
+            <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
+              {/* Header */}
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-2">
+                  <Leaf className="text-emerald-600" size={32} />
+                  <h1 className="text-5xl font-extrabold bg-gradient-to-r from-emerald-600 to-amber-600 bg-clip-text text-transparent">
+                    Therapies
+                  </h1>
+                </div>
+                <p className="mt-3 text-gray-600 text-lg">
+                  Explore our curated Panchakarma and Ayurveda therapies for healing,
+                  detox, and rejuvenation 🌿
+                </p>
               </div>
 
-              {/* Created At */}
-              <p className="text-xs text-gray-400 mb-4">
-                Added on{" "}
-                {therapy.createdAt
-                  ? new Date(therapy.createdAt).toLocaleDateString()
-                  : "N/A"}
-              </p>
+              {/* Therapies Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {loading ? (
+                  <p className="text-gray-500 col-span-full">Loading therapies...</p>
+                ) : (
+                  therapies.map((therapy, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:-translate-y-1 
+                                 border border-emerald-100 hover:border-emerald-200 transition-all 
+                                 duration-300 flex flex-col"
+                    >
+                      <div className="p-6 flex flex-col flex-grow">
+                        {/* Therapy Code */}
+                        <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wide">
+                          {therapy.code || "AYU-THERAPY"}
+                        </span>
 
-              {/* Book Appointment Button */}
-              <button
-                onClick={() => alert(`Booking appointment for ${therapy.name}`)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 
-                bg-gradient-to-r from-emerald-500 to-amber-500 text-white font-semibold 
-                shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
-                transition-all duration-300"
-              >
-                <Calendar size={18} /> Book Appointment
-              </button>
+                        {/* Therapy Name */}
+                        <h2 className="text-2xl font-bold text-gray-900 mt-2 mb-4">
+                          {therapy.name}
+                        </h2>
+
+                        {/* Description */}
+                        <p className="text-gray-600 text-sm flex-grow mb-5 leading-relaxed">
+                          {therapy.description || "No description available"}
+                        </p>
+
+                        {/* Duration & Price */}
+                        <div className="flex justify-between items-center text-sm font-medium mb-5">
+                          <span className="flex items-center gap-1 text-emerald-700">
+                            <Clock size={18} /> {therapy.duration || "30"} min
+                          </span>
+                          <span className="flex items-center gap-1 text-amber-700">
+                            <IndianRupee size={18} /> {therapy.price || "1000"}
+                          </span>
+                        </div>
+
+                        {/* Created At */}
+                        <p className="text-xs text-gray-400 mb-4">
+                          Added on{" "}
+                          {therapy.createdAt
+                            ? new Date(therapy.createdAt).toLocaleDateString()
+                            : "N/A"}
+                        </p>
+
+                        {/* Book Appointment Button */}
+                        <button
+                          onClick={() => navigate('/appointments')} // ✅ Navigate to appointments
+                          className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 
+                          bg-gradient-to-r from-emerald-500 to-amber-500 text-white font-semibold 
+                          shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
+                          transition-all duration-300"
+                        >
+                          <Calendar size={18} /> Book Appointment
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
             </div>
-          </motion.div>
-        ))
-      )}
-    </div>
-  </div>
-)}
-
+          )}
         </div>
       </div>
     </div>

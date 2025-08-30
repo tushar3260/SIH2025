@@ -266,9 +266,9 @@ const AyurvedaDoctorDashboard = () => {
               <p className="text-gray-500 text-sm mb-4">{therapy.patients} patients scheduled</p>
             )}
 
-            <button className="w-full bg-emerald-500 hover:bg-emerald-600 py-2 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+            {/* <button className="w-full bg-emerald-500 hover:bg-emerald-600 py-2 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
               Book Now
-            </button>
+            </button> */}
           </div>
         ))}
       </div>

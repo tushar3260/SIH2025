@@ -10,6 +10,7 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
+import PatientAppointments from "./pages/patientappointment";
 
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
@@ -24,11 +25,23 @@ const App = () => {
           <BookAppointment />
           </UserProvider>
         } />
+        <Route path="/appointments" element={
+
+          <UserProvider>
+            <PatientAppointments />
+          </UserProvider>
+        } />
+
        <Route path="/therapies" element={<Therapies />} />
         <Route path="/" element={<AyurvedaLanding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignupPage />} />
-        <Route path="/dashboard" element={<PatientDashboard />} />
+
+        <Route path="/dashboard" element={
+          <UserProvider>
+            <PatientDashboard />
+          </UserProvider>
+        } />
         <Route path="/therapies" element={<Therapies />} />
         <Route path="/therapy" element={<TherapyPage />} />
         <Route path="/record" element={<Record />} />
@@ -36,7 +49,7 @@ const App = () => {
           <UserProvider>
             <AyurvedaDoctorDashboard />
           </UserProvider>
-          
+
         } />
         <Route
           path="/create-therapy"
