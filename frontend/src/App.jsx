@@ -9,6 +9,7 @@ import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
 import Therapies from "./pages/Therapies";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
 import UserProvider from "./context/UserContext";
+import PractitionerForm from "./pages/PractitionerForm";
 const App = () => {
   return (
     <Router>
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignupPage />} />
         <Route path="/therapy" element={<TherapyPage />} />
+        <Route path="/practitioner-form" element={<UserProvider><PractitionerForm /></UserProvider>} />
         <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
         <Route path="/create-therapy" element={
           <UserProvider>
