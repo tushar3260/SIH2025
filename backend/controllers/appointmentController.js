@@ -89,6 +89,9 @@ import User from '../models/User.js';
 // import User from '../models/User.js';
 
 
+
+import { notifyDoctor } from "../server.js"; // 👈 yeh add karna
+
 export const book = async (req, res, next) => {
   try {
     const { patientId, therapyId, start, notes } = req.body;
@@ -182,6 +185,12 @@ export const book = async (req, res, next) => {
       })
       .populate('therapy', 'name duration price description');
 
+    // 🚀 Socket.io Notification (Doctor ko real-time notify karo)
+    notifyDoctor(practitionerUser._id, {
+      message: `New appointment booked by ${patient.name} for ${therapy.name} on ${startDate.toLocaleString()}`,
+      appointment: populatedAppointment
+    });
+
     return res.status(201).json({
       message: "Appointment booked successfully",
       appointment: populatedAppointment
@@ -192,6 +201,7 @@ export const book = async (req, res, next) => {
     return res.status(500).json({ error: "Server error: " + err.message });
   }
 };
+
 
 // Cancel appointment
 

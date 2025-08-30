@@ -40,30 +40,28 @@ export const getTherapyByTherapyId = async (req, res, next) => {
 
 export const createTherapy = async (req, res, next) => {
   try {
-    const { name, description, code, duration, price, patientId, practitionerId } = req.body;
+    const { name, description, code, duration, price, practitionerId } = req.body;
 
-    // Basic validation
-    if (!name || !description || !patientId || !practitionerId) {
+    // ✅ Basic validation
+    if (!name || !description || !practitionerId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Create the therapy
+    // ✅ Create the therapy
     const therapy = await Therapy.create({
       name,
       description,
       code,
       duration,
       price,
-      patient: patientId,
       practitioner: practitionerId,
     });
 
-    // Populate patient and practitioner details
-    const therapyWithUsers = await Therapy.findById(therapy._id)
-      .populate("patient", "name email")
+    // ✅ Populate practitioner details
+    const therapyWithPractitioner = await Therapy.findById(therapy._id)
       .populate("practitioner", "name email");
 
-    res.status(201).json(therapyWithUsers);
+    res.status(201).json(therapyWithPractitioner);
   } catch (err) {
     next(err);
   }
