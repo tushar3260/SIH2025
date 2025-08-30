@@ -172,9 +172,9 @@ const PatientDashboard = () => {
   useEffect(() => {
     if (activeSection === "therapies") {
       setLoading(true);
-      fetch("http://localhost:5000/api/therapies")
-        .then((res) => res.json())
-        .then((data) => {
+      fetch("http://localhost:5000/api/therapies") // ✅ apna backend endpoint
+        .then(res => res.json())
+        .then(data => {
           setTherapies(data);
           setLoading(false);
         })
