@@ -13,6 +13,7 @@ import CreateTherapyForm from "./pages/CreateTherapyForm";
 // import UserProvider from "./context/UserContext";
 import PatientAppointments from "./pages/patientappointment";
 import AddTherapy from "./pages/AddTherapy";
+import PanchakarmaAIsystem from "./pages/PanchkarmaAIsystem";
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
 import Record from "./pages/Record";
@@ -37,6 +38,7 @@ const App = () => {
             <AddTherapy />
           </UserProvider>
         } />
+      <Route path="/ai-consultant" element={<PanchakarmaAIsystem />} />
        <Route path="/therapies" element={<Therapies />} />
         <Route path="/" element={<AyurvedaLanding />} />
         <Route path="/login" element={<Login />} />

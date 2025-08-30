@@ -115,12 +115,32 @@ const AyurvedaDoctorDashboard = () => {
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Good morning, Dr. Sharma</h1>
-          <p className="text-gray-600 text-lg">You have {todaysAppointments.length} appointments today</p>
-        </div>
-      </div>
+<div className="bg-gradient-to-r from-green-50 to-emerald-100 shadow-md border-b border-emerald-200 p-6 flex justify-between items-center rounded-b-2xl">
+  {/* Left: Greeting + Appointments */}
+  <div>
+    <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
+      Welcome Dr. Sharma
+    </h1>
+    <p className="text-emerald-700 mt-1 text-sm md:text-base">
+      Today you have, <span className="font-semibold">3 appointments</span> 
+    </p>
+  </div>
+
+  {/* Right: Doctor Profile */}
+  <div className="flex items-center gap-3">
+    <img
+      src="https://randomuser.me/api/portraits/men/32.jpg"
+      alt="Doctor Avatar"
+      className="w-14 h-14 rounded-full border-2 border-indigo-600"
+    />
+    <div>
+      <p className="font-semibold text-gray-900">Dr. Sharma</p>
+      <p className="text-gray-500 text-sm">Cardiologist</p>
+    </div>
+  </div>
+</div>
+
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
