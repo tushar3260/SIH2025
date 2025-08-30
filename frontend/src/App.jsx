@@ -61,16 +61,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/therapies"
-            element={
-              <ProtectedRoute>
-                <UserProvider>
-                  <Therapies />
-                </UserProvider>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/therapies" element={<Therapies />} />
           <Route
             path="/therapy"
             element={
@@ -87,20 +78,13 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/practitioner-setup"
-            element={
-              
-                <PractitionerForm />
-              
-            }
-          />
+          <Route path="/practitioner-setup" element={<PractitionerForm />} />
           <Route
             path="/doctor-dashboard"
             element={
               <ProtectedRoute>
                 <UserProvider>
-                <AyurvedaDoctorDashboard />
+                  <AyurvedaDoctorDashboard />
                 </UserProvider>
               </ProtectedRoute>
             }
