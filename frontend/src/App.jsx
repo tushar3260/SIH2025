@@ -56,9 +56,9 @@ const App = () => {
           <Route
             path="/add-therapy"
             element={
-              <ProtectedRoute>
+              
                 <AddTherapy />
-              </ProtectedRoute>
+             
             }
           />
           <Route path="/therapies" element={<Therapies />} />
@@ -84,9 +84,9 @@ const App = () => {
           <Route
             path="/create-therapy"
             element={
-              <ProtectedRoute>
+              
                 <CreateTherapyForm />
-              </ProtectedRoute>
+              
             }
           />
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign, User, Phone, Mail, MapPin, Activity, LogOut } from 'lucide-react';
+import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign, User, Phone, Mail, MapPin, Activity ,LogOut} from 'lucide-react';
 import { io } from "socket.io-client";
 import axios from 'axios';
 
@@ -7,14 +7,14 @@ const AyurvedaDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [therapiesList, setTherapiesList] = useState([]);
   const [loadingTherapies, setLoadingTherapies] = useState(true);
-   const pracId = JSON.parse(localStorage.getItem("practioner")).id;
-  // --- Sidebar ---
   
   // Add states for patients
   const [patients, setPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
   const [patientsError, setPatientsError] = useState(null);
   const [notifications, setNotifications] = useState([]);
+
+  const pracId = JSON.parse(localStorage.getItem("user")).id;
   console.log('Practitioner ID:', pracId);
 
   // Sidebar
@@ -24,9 +24,12 @@ const AyurvedaDoctorDashboard = () => {
     { id: 'therapies', icon: Heart, label: 'Therapies' },
     { id: 'staff', icon: UserCheck, label: 'Staff' },
     { id: 'reports', icon: BarChart3, label: 'Reports' },
-    { id: 'logout', icon: LogOut, label: 'Logout'}
+    { id: 'logout', icon: LogOut, label: 'Logout' }
   ];
-
+const handleLogout = () => {
+  localStorage.removeItem("user");  // clear user session
+  window.location.href = "/";       // redirect to landing page (change to "/landing" if that's your route)
+};
   // Static Data
   const todaysAppointments = [
     {
@@ -84,30 +87,6 @@ const AyurvedaDoctorDashboard = () => {
       socket.disconnect();
     };
   }, [doctorId]);
-
-  // inside AyurvedaDoctorDashboard
-const handleLogout = () => {
-  localStorage.removeItem("user");  // clear user session
-  window.location.href = "/";       // redirect to landing page (change to "/landing" if that's your route)
-};
-
-
-  const renderNotifications = () => (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4">Notifications</h2>
-      {notifications.length === 0 ? (
-        <p className="text-gray-500">No new notifications</p>
-      ) : (
-        <ul className="space-y-2">
-          {notifications.map((n, i) => (
-            <li key={i} className="p-3 bg-indigo-50 rounded-lg text-gray-800">
-              {n}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
 
   const activeSessions = [
     { patient: 'Anika Kapoor', therapy: 'Abhyanga', progress: 60, timeRemaining: '25 min', therapist: 'Maya Patel' },
@@ -518,11 +497,10 @@ const handleLogout = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      {/* Sidebar */}
-<div className="w-72 bg-white border-r border-gray-200 flex flex-col py-6 px-4 space-y-6">
-  <h2 className="text-2xl font-bold text-gray-900 mb-6">AyurSutra</h2>
-  <div className="flex flex-col gap-4">
-    {sidebarItems.map(item => (
+      <div className="w-72 bg-white border-r border-gray-200 flex flex-col py-6 px-4 space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">AyurSutra</h2>
+        <div className="flex flex-col gap-4">
+          {sidebarItems.map(item => (
       <button
         key={item.id}
         onClick={() => {
@@ -540,11 +518,8 @@ const handleLogout = () => {
         {item.label}
       </button>
     ))}
-  </div>
-</div>
-
-
-
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8">
