@@ -61,13 +61,19 @@ const SignupPage = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       console.log('API response:', response.data);
+      const k =JSON.parse(localStorage.getItem('user'));
 
       if (response.data.success) {
         setMessage({ type: 'success', text: response.data.message || 'Account created successfully!' });
         
         // Use React Router navigation
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          if(k.role==="practitioner"){
+            window.location.href = '/doctor-dashboard';
+          }
+          else{
+            window.location.href = '/dashboard';
+          }
         }, 1500);
 
       } else {
