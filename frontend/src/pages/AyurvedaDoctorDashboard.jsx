@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign } from 'lucide-react';
+import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign, LogOut } from 'lucide-react';
 import { io } from "socket.io-client";
 const AyurvedaDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [therapiesList, setTherapiesList] = useState([]);
   const [loadingTherapies, setLoadingTherapies] = useState(true);
-   const pracId = JSON.parse(localStorage.getItem("user")).id;
+   const pracId = JSON.parse(localStorage.getItem("practioner")).id;
   // --- Sidebar ---
   const sidebarItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'patients', icon: Users, label: 'Patients' },
     { id: 'therapies', icon: Heart, label: 'Therapies' },
     { id: 'staff', icon: UserCheck, label: 'Staff' },
-    { id: 'reports', icon: BarChart3, label: 'Reports' }
+    { id: 'reports', icon: BarChart3, label: 'Reports' },
+    { id: 'logout', icon: LogOut, label: 'Logout'}
   ];
 
   // --- Static Data ---
@@ -72,6 +73,13 @@ const AyurvedaDoctorDashboard = () => {
       socket.disconnect();
     };
   }, [doctorId]);
+
+  // inside AyurvedaDoctorDashboard
+const handleLogout = () => {
+  localStorage.removeItem("user");  // clear user session
+  window.location.href = "/";       // redirect to landing page (change to "/landing" if that's your route)
+};
+
 
   const renderNotifications = () => (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -358,23 +366,33 @@ const AyurvedaDoctorDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-72 bg-white border-r border-gray-200 flex flex-col py-6 px-4 space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">AyurSutra</h2>
-        <div className="flex flex-col gap-4">
-          {sidebarItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-colors duration-200 w-full text-left ${
-                activeTab === item.id ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <item.icon size={20} />
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Sidebar */}
+<div className="w-72 bg-white border-r border-gray-200 flex flex-col py-6 px-4 space-y-6">
+  <h2 className="text-2xl font-bold text-gray-900 mb-6">AyurSutra</h2>
+  <div className="flex flex-col gap-4">
+    {sidebarItems.map(item => (
+      <button
+        key={item.id}
+        onClick={() => {
+          if (item.id === "logout") {
+            handleLogout();   // ✅ logout logic
+          } else {
+            setActiveTab(item.id);
+          }
+        }}
+        className={`flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-colors duration-200 w-full text-left ${
+          activeTab === item.id ? 'bg-indigo-100 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'
+        }`}
+      >
+        <item.icon size={20} />
+        {item.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+
+
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8">

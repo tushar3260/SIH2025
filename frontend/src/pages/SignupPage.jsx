@@ -69,7 +69,7 @@ const SignupPage = () => {
         // Use React Router navigation
         setTimeout(() => {
           if(k.role==="practitioner"){
-            window.location.href = '/doctor-dashboard';
+            window.location.href = '/practitioner-setup';
           }
           else{
             window.location.href = '/dashboard';

@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import AyurvedaLanding from "./pages/AyurvedaLanding";
 import Login from "./pages/LoginPage";
 import PatientDashboard from "./pages/PatientDashboard";
@@ -10,64 +11,119 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
-// import UserProvider from "./context/UserContext";
 import PatientAppointments from "./pages/patientappointment";
 import AddTherapy from "./pages/AddTherapy";
 import PanchakarmaAIsystem from "./pages/PanchkarmaAIsystem";
 import PractitionerForm from "./pages/PractitionerForm";
-// import UserProvider from "./context/UserContext";
 import Record from "./pages/Record";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/book/:id" element={
-          <UserProvider>
-          <BookAppointment />
-          </UserProvider>
-        } />
-        <Route path="/appointments" element={
+    <UserProvider>
+      <Router>
+        <Routes>
+          {/* ✅ Public Routes */}
+          <Route path="/" element={<AyurvedaLanding />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<SignupPage />} />
 
-          <UserProvider>
-            <PatientAppointments />
-          </UserProvider>
-        } />
-        <Route path="/Add-therapy" element={
-          <UserProvider>
-            <AddTherapy />
-          </UserProvider>
-        } />
-      <Route path="/ai-consultant" element={<PanchakarmaAIsystem />} />
-       <Route path="/therapies" element={<Therapies />} />
-        <Route path="/" element={<AyurvedaLanding />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<SignupPage />} />
-        <Route path="/dashboard" element={
-          <UserProvider>
-          <PatientDashboard />
-          </UserProvider>
-        } />
-        <Route path="/therapies" element={<Therapies />} />
-        <Route path="/therapy" element={<TherapyPage />} />
-        <Route path="/record" element={<Record />} />
-        <Route path="/practitioner-setup" element={<PractitionerForm />} />
-        <Route path="/doctor-dashboard" element={
-          <UserProvider>
-            <AyurvedaDoctorDashboard />
-          </UserProvider>
-
-        } />
-        <Route
-          path="/create-therapy"
-          element={
-            <UserProvider>
-              <CreateTherapyForm />
-            </UserProvider>
-          }
-        />
-      </Routes>
-    </Router>
+          {/* ✅ Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <PatientDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/book/:id"
+            element={
+              <ProtectedRoute>
+                <BookAppointment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <PatientAppointments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-therapy"
+            element={
+              <ProtectedRoute>
+                <AddTherapy />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/therapies"
+            element={
+              <ProtectedRoute>
+                <UserProvider>
+                  <Therapies />
+                </UserProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/therapy"
+            element={
+              <ProtectedRoute>
+                <TherapyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record"
+            element={
+              <ProtectedRoute>
+                <Record />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/practitioner-setup"
+            element={
+              
+                <PractitionerForm />
+              
+            }
+          />
+          <Route
+            path="/doctor-dashboard"
+            element={
+              <ProtectedRoute>
+                <UserProvider>
+                <AyurvedaDoctorDashboard />
+                </UserProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-therapy"
+            element={
+              <ProtectedRoute>
+                <CreateTherapyForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-consultant"
+            element={
+              <ProtectedRoute>
+                <PanchakarmaAIsystem />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 };
 

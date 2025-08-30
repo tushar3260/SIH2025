@@ -39,6 +39,7 @@ const PatientDashboard = () => {
     { id: "recommendations", icon: Lightbulb, label: "AI Consultant" },
     { id: "health", icon: Heart, label: "Health Info" },
     { id: "records", icon: FileText, label: "View Records" },
+    { id: "logout", icon: CloudCog, label: "Logout" }
   ];
 
   const bottomNavItems = [
@@ -120,6 +121,12 @@ const PatientDashboard = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+const handleLogout = () => {
+  localStorage.removeItem("user"); 
+  navigate("/");                    
+};
+
 
   // Helper function to format date and time
   const formatDateTime = (dateString) => {
@@ -278,18 +285,26 @@ const PatientDashboard = () => {
 
         <div className="p-4 border-t border-gray-200 space-y-2">
           {bottomNavItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-colors"
-              >
-                <Icon size={20} />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
+  const Icon = item.icon;
+  return (
+    <button
+      key={item.id}
+      onClick={() => {
+  if (item.id === "logout") {
+    handleLogout();   // ✅ runs logout function
+  } else {
+    setActiveSection(item.id);
+  }
+}}
+
+      className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-colors"
+    >
+      <Icon size={20} />
+      <span className="font-medium">{item.label}</span>
+    </button>
+  );
+})}
+
         </div>
       </div>
 
