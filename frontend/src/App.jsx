@@ -5,7 +5,6 @@ import AyurvedaLanding from "./pages/AyurvedaLanding";
 import Login from "./pages/LoginPage";
 import PatientDashboard from "./pages/PatientDashboard";
 import SignupPage from "./pages/SignupPage";
-import TherapyPage from "./pages/TherapyPage";
 import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
 import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
@@ -17,6 +16,7 @@ import PanchakarmaAIsystem from "./pages/PanchkarmaAIsystem";
 import PractitionerForm from "./pages/PractitionerForm";
 import Record from "./pages/Record";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HealthInfo from "./pages/HealthInfo";
 
 const App = () => {
   return (
@@ -63,14 +63,6 @@ const App = () => {
           />
           <Route path="/therapies" element={<Therapies />} />
           <Route
-            path="/therapy"
-            element={
-              <ProtectedRoute>
-                <TherapyPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/record"
             element={
               <ProtectedRoute>
@@ -97,6 +89,17 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/healthinfo"
+            element={
+              
+                <HealthInfo />
+              
+            }
+          />
+        
+
           <Route
             path="/ai-consultant"
             element={

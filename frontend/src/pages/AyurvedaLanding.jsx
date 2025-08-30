@@ -125,6 +125,7 @@ const Testimonial = ({ name, text, rating = 5, role = "Patient" }) => (
   </div>
 );
 
+
 // ✅ Updated Practitioner Card Component for new data structure
 const PractitionerCard = ({ practitioner }) => {
   // Extract data from nested structure

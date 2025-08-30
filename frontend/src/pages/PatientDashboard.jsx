@@ -18,6 +18,7 @@ import { Leaf, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import HealthInfo from "./HealthInfo";
 
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -28,6 +29,7 @@ const PatientDashboard = () => {
   const [appointments, setAppointments] = useState([]);
 
   const userId = JSON.parse(localStorage.getItem("user"))?.id;
+  const navigate = useNavigate();
 
   const navItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", active: true },
@@ -37,12 +39,13 @@ const PatientDashboard = () => {
     { id: "recommendations", icon: Lightbulb, label: "AI Consultant" },
     { id: "health", icon: Heart, label: "Health Info" },
     { id: "records", icon: FileText, label: "View Records" },
-    { id: "logout", icon: CloudCog, label: "Logout" }
+    
   ];
 
   const bottomNavItems = [
     { id: "settings", icon: Settings, label: "Settings" },
     { id: "help", icon: HelpCircle, label: "Help" },
+    { id: "logout", icon: CloudCog, label: "Logout" }
   ];
 
   const therapySchedule = [
@@ -120,11 +123,10 @@ const PatientDashboard = () => {
     }
   };
 
-const handleLogout = () => {
-  localStorage.removeItem("user"); 
-  navigate("/");                    
-};
-
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
 
   // Helper function to format date and time
   const formatDateTime = (dateString) => {
@@ -165,9 +167,9 @@ const handleLogout = () => {
     if (activeSection === "therapies" && userId) {
       setLoading(true);
       console.log("Fetching therapies for userId:", userId); // Debug log
-      
+
       axios
-        .get(`http://localhost:5000/api/therapies/user/${userId}`, {
+        .get(`http://localhost:5000/api/therapies`, {
           timeout: 10000, // 10 second timeout
         })
         .then((res) => {
@@ -177,49 +179,22 @@ const handleLogout = () => {
         })
         .catch((err) => {
           console.error("Error fetching therapies:", err);
-          
+
           // Better error handling
-          if (err.code === 'ECONNABORTED') {
-            console.error('Request timeout');
+          if (err.code === "ECONNABORTED") {
+            console.error("Request timeout");
           } else if (err.response) {
-            console.error('Server error:', err.response.status, err.response.data);
+            console.error(
+              "Server error:",
+              err.response.status,
+              err.response.data
+            );
           } else if (err.request) {
-            console.error('Network error');
+            console.error("Network error");
           }
-          
+
           setLoading(false);
-          
-          // ✅ Fallback therapies data in case of API error
-          const fallbackTherapies = [
-            {
-              _id: "fallback1",
-              name: "Abhyanga Massage",
-              description: "Traditional full-body oil massage therapy for relaxation and detoxification",
-              duration: 60,
-              price: 2500,
-              code: "ABH-001",
-              createdAt: "2025-08-30T10:00:00.000Z"
-            },
-            {
-              _id: "fallback2", 
-              name: "Shirodhara",
-              description: "Continuous pouring of medicated oil on forehead for mental relaxation",
-              duration: 45,
-              price: 3000,
-              code: "SHI-001",
-              createdAt: "2025-08-30T10:00:00.000Z"
-            },
-            {
-              _id: "fallback3",
-              name: "Panchakarma Detox",
-              description: "Complete detoxification therapy using five purification methods",
-              duration: 120,
-              price: 5000,
-              code: "PAN-001", 
-              createdAt: "2025-08-30T10:00:00.000Z"
-            }
-          ];
-          setTherapies(fallbackTherapies);
+
         });
     }
   }, [activeSection, userId]);
@@ -286,23 +261,21 @@ const handleLogout = () => {
     }
   }, [activeSection, userId]);
 
-  const navigate = useNavigate();
-
   return (
     <div className="flex min-h-screen font-sans bg-gray-50">
       {/* Sidebar */}
       <div className="w-80 bg-white shadow-lg flex flex-col">
         <div className="p-6 border-b border-gray-200 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-green-100 to-amber-100">
-                <Leaf className="w-5 h-5 text-green-700" />
+            <div className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-green-100 to-amber-100">
+              <Leaf className="w-5 h-5 text-green-700" />
+            </div>
+            <div>
+              <div className="text-xl font-extrabold tracking-tight text-green-600">
+                AyurSutra
               </div>
-              <div>
-                <div className="text-xl font-extrabold tracking-tight text-green-600">
-                  AyurSutra
-                </div>
-              </div>
-            </Link>
+            </div>
+          </Link>
         </div>
 
         <div className="flex-1 p-4 space-y-2">
@@ -330,26 +303,24 @@ const handleLogout = () => {
 
         <div className="p-4 border-t border-gray-200 space-y-2">
           {bottomNavItems.map((item) => {
-  const Icon = item.icon;
-  return (
-    <button
-      key={item.id}
-      onClick={() => {
-  if (item.id === "logout") {
-    handleLogout();   // ✅ runs logout function
-  } else {
-    setActiveSection(item.id);
-  }
-}}
-
-      className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-colors"
-    >
-      <Icon size={20} />
-      <span className="font-medium">{item.label}</span>
-    </button>
-  );
-})}
-
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === "logout") {
+                    handleLogout(); // ✅ runs logout function
+                  } else {
+                    setActiveSection(item.id);
+                  }
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-colors"
+              >
+                <Icon size={20} />
+                <span className="font-medium">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -362,10 +333,7 @@ const handleLogout = () => {
             </h1>
             <p className="text-gray-600 mt-1">Welcome back, Anya Sharma</p>
           </div>
-          {/* ✅ Debug info */}
-          <div className="text-right text-sm text-gray-500">
-            <p>User ID: {userId}</p>
-          </div>
+          
         </div>
 
         <div className="p-6 space-y-8">
@@ -591,7 +559,6 @@ const handleLogout = () => {
             </div>
           )}
 
-          
           {/* ✅ Updated Therapies Section with Real API Data */}
           {activeSection === "therapies" && (
             <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
@@ -611,7 +578,9 @@ const handleLogout = () => {
               {/* ✅ Show loading state or user ID info */}
               {!userId && (
                 <div className="text-center py-8">
-                  <p className="text-red-600 font-medium">Please login to view therapies</p>
+                  <p className="text-red-600 font-medium">
+                    Please login to view therapies
+                  </p>
                 </div>
               )}
 
@@ -623,7 +592,9 @@ const handleLogout = () => {
                   </div>
                 ) : therapies.length === 0 ? (
                   <div className="col-span-full text-center py-8">
-                    <p className="text-gray-500">No therapies found for this user.</p>
+                    <p className="text-gray-500">
+                      No therapies found for this user.
+                    </p>
                   </div>
                 ) : (
                   therapies.map((therapy, i) => (
@@ -716,6 +687,9 @@ const handleLogout = () => {
               </div>
             </div>
           )}
+          {activeSection === "health" && <HealthInfo />}
+
+
         </div>
       </div>
     </div>
