@@ -218,6 +218,14 @@ const PractitionerCard = ({ practitioner }) => {
 };
 
 const AyurvedaLanding = () => {
+  const images = [
+    "https://i.pinimg.com/1200x/ee/7e/10/ee7e103328cef3b3bafdeff65f2aaf1c.jpg",
+    "https://i.pinimg.com/736x/a3/92/b4/a392b4aea106f5fe753422238a151b97.jpg",
+    "https://i.pinimg.com/736x/18/89/9b/18899b05efcbc98281b97103bcf2a77d.jpg",
+    "https://i.pinimg.com/1200x/ee/2d/0c/ee2d0cb625477da479efa2c13a521e59.jpg",
+    "https://i.pinimg.com/1200x/a7/14/62/a71462da330f0643be0df9b4d7bc8603.jpg",
+    "https://i.pinimg.com/1200x/5d/9d/00/5d9d0079f644cef4f7f87715717ae59c.jpg",
+  ];
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -690,67 +698,69 @@ const AyurvedaLanding = () => {
       </section>
 
       <section className="relative py-24 bg-gradient-to-br from-green-50 to-amber-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
-            Panchakarma Therapies
-          </h2>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
+          Panchakarma Therapies
+        </h2>
 
-          <div className="relative w-full overflow-hidden">
-            {/* Sliding container */}
-            <div className="flex animate-slide gap-6">
-              {[
-                "https://i.pinimg.com/1200x/ee/7e/10/ee7e103328cef3b3bafdeff65f2aaf1c.jpg",
-                "https://i.pinimg.com/736x/a3/92/b4/a392b4aea106f5fe753422238a151b97.jpg",
-                "https://i.pinimg.com/736x/18/89/9b/18899b05efcbc98281b97103bcf2a77d.jpg",
-                "https://i.pinimg.com/1200x/ee/2d/0c/ee2d0cb625477da479efa2c13a521e59.jpg",
-                "https://i.pinimg.com/1200x/a7/14/62/a71462da330f0643be0df9b4d7bc8603.jpg",
-                "https://i.pinimg.com/1200x/5d/9d/00/5d9d0079f644cef4f7f87715717ae59c.jpg",
-              ].flatMap((src, i, arr) => [ // 👈 flatMap for duplicate loop
-                <div
-                  key={i}
-                  className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-                >
-                  <img
-                    src={src}
-                    alt="panchakarma"
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                </div>,
-                // duplicate immediately after original set
-                i === arr.length - 1 &&
-                  arr.map((dupSrc, j) => (
-                    <div
-                      key={`dup-${j}`}
-                      className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-                    >
-                      <img
-                        src={dupSrc}
-                        alt="panchakarma"
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                  )),
-              ])}
-            </div>
+        <div className="relative w-full overflow-hidden">
+          {/* Sliding container */}
+          <div className="flex animate-slide gap-6">
+            {images.flatMap((src, i, arr) => [
+              <div
+                key={i}
+                className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+              >
+                <img
+                  src={src}
+                  alt="panchakarma"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                />
+              </div>,
+              i === arr.length - 1 &&
+                arr.map((dupSrc, j) => (
+                  <div
+                    key={`dup-${j}`}
+                    className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                  >
+                    <img
+                      src={dupSrc}
+                      alt="panchakarma"
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                )),
+            ])}
           </div>
         </div>
 
-        <style jsx>{`
-          .animate-slide {
-            display: flex;
-            width: max-content;
-            animation: slide 30s linear infinite; /* slow & smooth */
+        {/* View More button */}
+        <div className="flex justify-center mt-12">
+          <Link
+            to="/therapies"
+            className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition"
+          >
+            View More
+          </Link>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .animate-slide {
+          display: flex;
+          width: max-content;
+          animation: slide 30s linear infinite;
+        }
+        @keyframes slide {
+          from {
+            transform: translateX(0);
           }
-          @keyframes slide {
-            from {
-              transform: translateX(0);
-            }
-            to {
-              transform: translateX(-50%);
-            }
+          to {
+            transform: translateX(-50%);
           }
-        `}</style>
-      </section>
+        }
+      `}</style>
+    </section>
 
       {/* Features */}
       <section
