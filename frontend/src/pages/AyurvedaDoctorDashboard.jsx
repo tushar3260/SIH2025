@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign } from 'lucide-react';
-
+import { io } from "socket.io-client";
 const AyurvedaDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [therapiesList, setTherapiesList] = useState([]);
   const [loadingTherapies, setLoadingTherapies] = useState(true);
-
+   const pracId = JSON.parse(localStorage.getItem("user")).id;
   // --- Sidebar ---
   const sidebarItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -45,6 +45,50 @@ const AyurvedaDoctorDashboard = () => {
       condition: 'Joint Pain'
     }
   ];
+  const doctorId = JSON.parse(localStorage.getItem("user")).id;
+   // 👈 backend ka practitionerDoc._id use karna
+
+  // --- Socket.io setup ---
+  useEffect(() => {
+    const socket = io("http://localhost:5000", {
+      transports: ["websocket"],
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Connected:", socket.id);
+      socket.emit("joinAsDoctor", doctorId);
+    });
+
+    socket.on("newAppointment", (data) => {
+      console.log("📩 New Appointment:", data);
+      setNotifications((prev) => [...prev, data.message]);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Connect Error:", err.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [doctorId]);
+
+  const renderNotifications = () => (
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+      <h2 className="text-xl font-bold mb-4">Notifications</h2>
+      {notifications.length === 0 ? (
+        <p className="text-gray-500">No new notifications</p>
+      ) : (
+        <ul className="space-y-2">
+          {notifications.map((n, i) => (
+            <li key={i} className="p-3 bg-indigo-50 rounded-lg text-gray-800">
+              {n}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 
   const activeSessions = [
     { patient: 'Anika Kapoor', therapy: 'Abhyanga', progress: 60, timeRemaining: '25 min', therapist: 'Maya Patel' },
@@ -55,7 +99,7 @@ const AyurvedaDoctorDashboard = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/therapies/practitioner/68b21b6614a9228cd7fe43c4"); // replace with your backend URL
+        const res = await fetch( `http://localhost:5000/api/therapies/practitioner/${pracId}`); // replace with your backend URL
         const data = await res.json();
         setTherapiesList(data);
       } catch (error) {
@@ -252,7 +296,11 @@ const AyurvedaDoctorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Therapies</h1>
-        <button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <button 
+        onClick={()=>{
+          window.location.href = "/Add-therapy";
+        }}
+         className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
           <Plus size={20} /> Schedule Therapy
         </button>
       </div>

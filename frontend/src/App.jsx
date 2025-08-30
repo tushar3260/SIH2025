@@ -10,7 +10,9 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
+// import UserProvider from "./context/UserContext";
 import PatientAppointments from "./pages/patientappointment";
+import AddTherapy from "./pages/AddTherapy";
 import PanchakarmaAIsystem from "./pages/PanchkarmaAIsystem";
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
@@ -29,6 +31,11 @@ const App = () => {
 
           <UserProvider>
             <PatientAppointments />
+          </UserProvider>
+        } />
+        <Route path="/Add-therapy" element={
+          <UserProvider>
+            <AddTherapy />
           </UserProvider>
         } />
       <Route path="/ai-consultant" element={<PanchakarmaAIsystem />} />
