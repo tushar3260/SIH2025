@@ -55,7 +55,7 @@ const AyurvedaDoctorDashboard = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/therapies'); // replace with your backend URL
+        const res = await fetch("http://localhost:5000/api/therapies/practitioner/68b21b6614a9228cd7fe43c4"); // replace with your backend URL
         const data = await res.json();
         setTherapiesList(data);
       } catch (error) {
