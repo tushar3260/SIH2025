@@ -7,30 +7,42 @@ import SignupPage from "./pages/SignupPage";
 import TherapyPage from "./pages/TherapyPage";
 import AyurvedaDoctorDashboard from "./pages/AyurvedaDoctorDashboard";
 import Therapies from "./pages/Therapies";
+import BookAppointment from "./pages/BookAppointment";
+import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
 import UserProvider from "./context/UserContext";
 import PractitionerForm from "./pages/PractitionerForm";
+// import UserProvider from "./context/UserContext";
+import Record from "./pages/Record";
+
 const App = () => {
   return (
     <Router>
       <Routes>
-       <Route path="/therapies" element={<Therapies />} />
-        <Route path="/" element={<AyurvedaLanding />} />
-        <Route path="/dashboard" element={<PatientDashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<SignupPage />} />
-        <Route path="/therapy" element={<TherapyPage />} />
-        <Route path="/practitioner-form" element={<UserProvider><PractitionerForm /></UserProvider>} />
-        <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
-        <Route path="/create-therapy" element={
+        <Route path="/book/:id" element={
           <UserProvider>
-            <CreateTherapyForm />
+          <BookAppointment />
           </UserProvider>
         } />
-
+       <Route path="/therapies" element={<Therapies />} />
+        <Route path="/" element={<AyurvedaLanding />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<SignupPage />} />
+        <Route path="/dashboard" element={<PatientDashboard />} />
+        <Route path="/therapies" element={<Therapies />} />
+        <Route path="/therapy" element={<TherapyPage />} />
+        <Route path="/record" element={<Record />} />
+        <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
+        <Route
+          path="/create-therapy"
+          element={
+            <UserProvider>
+              <CreateTherapyForm />
+            </UserProvider>
+          }
+        />
       </Routes>
     </Router>
-    
   );
 };
 
