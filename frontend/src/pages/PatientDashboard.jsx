@@ -17,6 +17,9 @@ import {
 import { Leaf, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+
+
 
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -33,7 +36,7 @@ const PatientDashboard = () => {
     { id: "appointments", icon: Calendar, label: "Appointments", count: 2 },
     { id: "therapies", icon: List, label: "Therapies" },
     { id: "progress", icon: TrendingUp, label: "Progress" },
-    { id: "recommendations", icon: Lightbulb, label: "Recommendations" },
+    { id: "recommendations", icon: Lightbulb, label: "AI Consultant" },
     { id: "health", icon: Heart, label: "Health Info" },
     { id: "records", icon: FileText, label: "View Records" },
   ];
@@ -231,12 +234,23 @@ const PatientDashboard = () => {
     }
   }, [activeSection, userId]);
 
+  const navigate = useNavigate();
+
   return (
     <div className="flex min-h-screen font-sans bg-gray-50">
       {/* Sidebar */}
       <div className="w-80 bg-white shadow-lg flex flex-col">
         <div className="p-6 border-b border-gray-200 flex items-center gap-3">
-          zz
+          <Link to="/" className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-green-100 to-amber-100">
+                <Leaf className="w-5 h-5 text-green-700" />
+              </div>
+              <div>
+                <div className="text-xl font-extrabold tracking-tight text-green-600">
+                  AyurSutra
+                </div>
+              </div>
+            </Link>
         </div>
 
         <div className="flex-1 p-4 space-y-2">
@@ -618,39 +632,39 @@ const PatientDashboard = () => {
               </div>
             </div>
           )}
-          {/* Recommendations Section */}
-          {activeSection === "recommendations" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                AI Recommendations
-              </h2>
+         {/* Recommendations Section */}
+      {activeSection === "recommendations" && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            AI Recommendations
+          </h2>
 
-              <div className="flex flex-col items-center">
-                <img
-                  src="https://i.pinimg.com/1200x/8f/1c/19/8f1c191e824e0462dcbfd920553ba3a7.jpg"
-                  alt="AI Personalized Consultant"
-                  className="w-full max-w-2xl rounded-xl shadow-md mb-6"
-                />
+          <div className="flex flex-col items-center">
+            <img
+              src="https://i.pinimg.com/1200x/8f/1c/19/8f1c191e824e0462dcbfd920553ba3a7.jpg"
+              alt="AI Personalized Consultant"
+              className="w-full max-w-2xl rounded-xl shadow-md mb-6"
+            />
 
-                <p className="text-gray-600 text-center text-lg max-w-xl mb-6">
-                  Discover personalized therapy suggestions designed to restore
-                  balance, relieve stress, and rejuvenate your body and mind
-                  through Ayurveda and Panchakarma practices.
-                </p>
+            <p className="text-gray-600 text-center text-lg max-w-xl mb-6">
+              Discover personalized therapy suggestions designed to restore
+              balance, relieve stress, and rejuvenate your body and mind
+              through Ayurveda and Panchakarma practices.
+            </p>
 
-                {/* CTA Button */}
-                <button
-                  onClick={() => alert("Redirecting to AI Consultant...")}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
-                   text-white font-semibold rounded-xl shadow-md 
-                   hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
-                   transition-all duration-300"
-                >
-                  Get AI Consultant
-                </button>
-              </div>
-            </div>
-          )}
+            {/* CTA Button */}
+            <button
+              onClick={() => navigate("/ai-consultant")}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
+                text-white font-semibold rounded-xl shadow-md 
+                hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
+                transition-all duration-300"
+            >
+              Get AI Consultant
+            </button>
+          </div>
+        </div>
+      )}
         </div>
       </div>
     </div>

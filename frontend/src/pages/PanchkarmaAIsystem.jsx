@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Stethoscope, Calendar, CheckCircle, AlertTriangle, Clock, Heart, Activity, ArrowRight, Star, Sparkles, Shield, FileText, Eye, ChevronRight, Award, Zap, Brain } from 'lucide-react';
 
-const PanchakarmaSystem = () => {
+const PanchakarmaAIsystem = () => {
   const [currentView, setCurrentView] = useState('form');
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -1025,4 +1025,4 @@ const PanchakarmaSystem = () => {
   return null;
 };
 
-export default PanchakarmaSystem
+export default PanchakarmaAIsystem
