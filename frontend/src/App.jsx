@@ -10,13 +10,7 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> bc94384948492b50e3be8b33dea809af92447080
-=======
->>>>>>> b9acb2cb003cc056a65d07095aef5f654f1eddcd
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
 import Record from "./pages/Record";
