@@ -36,15 +36,15 @@ const App = () => {
         <Route path="/" element={<AyurvedaLanding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignupPage />} />
-
         <Route path="/dashboard" element={
           <UserProvider>
-            <PatientDashboard />
+          <PatientDashboard />
           </UserProvider>
         } />
         <Route path="/therapies" element={<Therapies />} />
         <Route path="/therapy" element={<TherapyPage />} />
         <Route path="/record" element={<Record />} />
+        <Route path="/practitioner-setup" element={<PractitionerForm />} />
         <Route path="/doctor-dashboard" element={
           <UserProvider>
             <AyurvedaDoctorDashboard />
