@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Clock, IndianRupee, Leaf, Calendar } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Therapies = () => {
   const [therapies, setTherapies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTherapies = async () => {
@@ -89,7 +91,7 @@ const Therapies = () => {
 
               {/* Book Appointment Button */}
               <button
-                onClick={() => alert(`Booking appointment for ${therapy.name}`)}
+                onClick={() => navigate(`/book/${therapy._id}`)}
                 className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 
                 bg-gradient-to-r from-emerald-500 to-amber-500 text-white font-semibold 
                 shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 

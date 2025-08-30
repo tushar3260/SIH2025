@@ -76,62 +76,122 @@ export const slots = async (req, res, next) => {
 
 
 // Book appointment
+// import Appointment from '../models/Appointment.js';
+// import Therapy from '../models/Therapy.js';
+// import Practitioner from '../models/Practitioner.js';
+import User from '../models/User.js';
+
+
+
+// import Appointment from '../models/Appointment.js';
+// import Therapy from '../models/Therapy.js';
+// import Practitioner from '../models/Practitioner.js';
+// import User from '../models/User.js';
+
+
 export const book = async (req, res, next) => {
   try {
-    const { patientId, practitionerId, therapyId, start, notes } = req.body;
+    const { patientId, therapyId, start, notes } = req.body;
 
-    // therapy aur practitioner fetch karo
-    const therapy = await Therapy.findById(therapyId).lean();
-    const practitioner = await Practitioner.findById(practitionerId)
-      .populate("user", "name email") // small 'user' hi use karega
-      .lean();
-
-    console.log("Practitioner found:", practitioner);
-
-    if (!practitioner || !practitioner.user) {
-      return res.status(400).json({ error: "Practitioner or user not found" });
+    // Basic validation
+    if (!patientId || !therapyId || !start) {
+      return res.status(400).json({ error: "patientId, therapyId, and start are required" });
     }
 
+    // Get patient
+    const patient = await User.findById(patientId);
+    if (!patient) {
+      return res.status(400).json({ error: "Patient not found" });
+    }
+
+    // Get therapy with practitioner user
+    const therapy = await Therapy.findById(therapyId).populate('practitioner');
     if (!therapy) {
-      return res.status(400).json({ error: "Invalid therapy" });
+      return res.status(400).json({ error: "Therapy not found" });
     }
 
-    if (!therapy.duration) {
-      return res.status(400).json({ error: "Therapy duration missing" });
+    if (!therapy.practitioner) {
+      return res.status(400).json({ error: "No practitioner assigned to this therapy" });
     }
 
-    // start aur end time calculate
+    const practitionerUser = therapy.practitioner;
+    
+    // Check if practitioner user has practitioner role
+    if (practitionerUser.role !== 'practitioner') {
+      return res.status(400).json({ error: "Assigned user is not a practitioner" });
+    }
+
+    // Find or create Practitioner document
+    let practitionerDoc = await Practitioner.findOne({ user: practitionerUser._id });
+    
+    if (!practitionerDoc) {
+      // Create practitioner document if not exists
+      practitionerDoc = await Practitioner.create({
+        user: practitionerUser._id,
+        specialty: ["General"],
+        availability: [],
+        breaks: []
+      });
+      console.log("Created new practitioner document:", practitionerDoc._id);
+    }
+
+    // Start & end time calculation
     const startDate = new Date(start);
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).json({ error: "Invalid start date" });
+    }
+
     const endDate = new Date(startDate.getTime() + therapy.duration * 60000);
 
-    // appointment create
-    const appt = await Appointment.create({
-      patient: patientId || req.user?._id, // agar patientId body se mila hai
-      practitioner: practitionerId,
+    // Optional: check availability (disabled for now)
+    // if (typeof fitsAvailability === "function") {
+    //   const ok = await fitsAvailability(practitionerDoc._id, startDate, endDate);
+    //   if (!ok) {
+    //     return res.status(400).json({ error: "Outside availability or in break" });
+    //   }
+    // }
+
+    // Optional: check conflicts (disabled for now)
+    // if (typeof hasConflict === "function") {
+    //   const clash = await hasConflict(practitionerDoc._id, startDate, endDate);
+    //   if (clash) {
+    //     return res.status(409).json({ error: "Slot already booked" });
+    //   }
+    // }
+
+    // Create appointment
+    const appointment = await Appointment.create({
+      patient: patientId,
+      practitioner: practitionerDoc._id,
       therapy: therapyId,
       start: startDate,
       end: endDate,
-      notes,
+      notes: notes || "",
       status: "confirmed",
     });
 
-    // notification (req.user safe check ke sath)
-    notifyBooking({
-      patientEmail: req.user?.email || "no-reply@example.com",
-      patientName: req.user?.name || "Anonymous",
-      practitionerEmail: practitioner.user.email,
-      when: startDate,
-    }).catch((err) => console.error("Notify error:", err.message));
+    // Populate appointment for response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate('patient', 'name email phone')
+      .populate({
+        path: 'practitioner',
+        populate: {
+          path: 'user',
+          select: 'name email'
+        }
+      })
+      .populate('therapy', 'name duration price description');
 
-    res.status(201).json(appt);
+    return res.status(201).json({
+      message: "Appointment booked successfully",
+      appointment: populatedAppointment
+    });
+
   } catch (err) {
-    console.error("Book error:", err.message);
-    res.status(500).json({ error: "Server error" });
+    console.error("Booking error:", err.message);
+    return res.status(500).json({ error: "Server error: " + err.message });
   }
 };
-
-
-
 
 // Cancel appointment
 

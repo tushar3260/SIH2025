@@ -229,7 +229,7 @@ const SignupPage = () => {
           {currentStep === 2 && (
             <div className="space-y-4">
               {/* Password & Confirm */}
-              {['password', 'confirmPassword'].map((field, i) => (
+              {['password', 'confirmPassword'].map((field,i) => (
                 <div key={field} className="space-y-1">
                   <label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
                     <Lock className="w-4 h-4 text-green-600" /> <span>{field === 'password' ? 'Password *' : 'Confirm Password *'}</span>
