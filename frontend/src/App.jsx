@@ -10,7 +10,12 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
+<<<<<<< HEAD
 // import UserProvider from "./context/UserContext";
+=======
+import PatientAppointments from "./pages/patientappointment";
+
+>>>>>>> b41c7fe5dba565d473dd754b5a465410901c9826
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
 import Record from "./pages/Record";
@@ -24,15 +29,32 @@ const App = () => {
           <BookAppointment />
           </UserProvider>
         } />
+        <Route path="/appointments" element={
+
+          <UserProvider>
+            <PatientAppointments />
+          </UserProvider>
+        } />
+
        <Route path="/therapies" element={<Therapies />} />
         <Route path="/" element={<AyurvedaLanding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignupPage />} />
-        <Route path="/dashboard" element={<PatientDashboard />} />
+        <Route path="/dashboard" element={
+          <UserProvider>
+          <PatientDashboard />
+          </UserProvider>
+        } />
         <Route path="/therapies" element={<Therapies />} />
         <Route path="/therapy" element={<TherapyPage />} />
         <Route path="/record" element={<Record />} />
-        <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
+        <Route path="/practitioner-setup" element={<PractitionerForm />} />
+        <Route path="/doctor-dashboard" element={
+          <UserProvider>
+            <AyurvedaDoctorDashboard />
+          </UserProvider>
+
+        } />
         <Route
           path="/create-therapy"
           element={

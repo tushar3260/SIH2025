@@ -10,19 +10,37 @@ export const listTherapies = async (req, res, next) => {
     next(new HttpError(500, "Failed to fetch therapies"));
   }
 };
-export const getTherapyByUserId = async (req, res, next) => {
+export const getTherapiesByUserId = async (req, res, next) => {
   try {
-    const userId = req.params.userId;
-    const therapies = await Therapy.find({ userId }).lean();
-    if (!therapies) {
+    const userId = req.params.userId; // get userId from params
+    const therapies = await Therapy.find({ patient: userId }).lean(); // use userId, not patientId
+
+    if (!therapies || therapies.length === 0) {
       return res.status(404).json({ message: "No therapies found for this user." });
     }
+
     return res.status(200).json(therapies);
   } catch (err) {
+    console.error(err);
     next(new HttpError(500, "Failed to fetch therapies for the user"));
   }
 };
 // ✅ Create a new therapy
+export const getTherapiesByPractitionerId = async (req, res, next) => {
+  try {
+    const practitionerId = req.params.practitionerId; // get practitionerId from params
+    const therapies = await Therapy.find({ practitioner: practitionerId }).lean(); // use practitionerId
+
+    if (!therapies || therapies.length === 0) {
+      return res.status(404).json({ message: "No therapies found for this practitioner." });
+    }
+
+    return res.status(200).json(therapies);
+  } catch (err) {
+    console.error(err);
+    next(new HttpError(500, "Failed to fetch therapies for the practitioner"));
+  }
+};
 
 export const getTherapyByTherapyId = async (req, res, next) => {
   try {

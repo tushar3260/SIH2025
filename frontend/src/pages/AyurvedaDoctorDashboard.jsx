@@ -99,7 +99,7 @@ const AyurvedaDoctorDashboard = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/therapies'); // replace with your backend URL
+        const res = await fetch("http://localhost:5000/api/therapies/practitioner/68b21b6614a9228cd7fe43c4"); // replace with your backend URL
         const data = await res.json();
         setTherapiesList(data);
       } catch (error) {
@@ -310,9 +310,9 @@ const AyurvedaDoctorDashboard = () => {
               <p className="text-gray-500 text-sm mb-4">{therapy.patients} patients scheduled</p>
             )}
 
-            <button className="w-full bg-emerald-500 hover:bg-emerald-600 py-2 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+            {/* <button className="w-full bg-emerald-500 hover:bg-emerald-600 py-2 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
               Book Now
-            </button>
+            </button> */}
           </div>
         ))}
       </div>
