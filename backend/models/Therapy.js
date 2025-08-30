@@ -34,7 +34,7 @@ const therapySchema = new mongoose.Schema(
     patient: { 
       type: mongoose.Schema.Types.ObjectId, 
       ref: "User", 
-      required: [true, "Patient is required"] 
+      
     },
     practitioner: { 
       type: mongoose.Schema.Types.ObjectId, 

@@ -79,7 +79,11 @@ export const createTherapy = async (req, res, next) => {
     const therapyWithPractitioner = await Therapy.findById(therapy._id)
       .populate("practitioner", "name email");
 
-    res.status(201).json(therapyWithPractitioner);
+    res.status(201).json({
+      message: "Therapy created successfully",
+      therapy: therapyWithPractitioner,
+      success: true,
+    });
   } catch (err) {
     next(err);
   }

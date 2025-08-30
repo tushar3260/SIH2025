@@ -5,7 +5,7 @@ const AyurvedaDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [therapiesList, setTherapiesList] = useState([]);
   const [loadingTherapies, setLoadingTherapies] = useState(true);
-
+   const pracId = JSON.parse(localStorage.getItem("user")).id;
   // --- Sidebar ---
   const sidebarItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -99,7 +99,7 @@ const AyurvedaDoctorDashboard = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/therapies/practitioner/68b21b6614a9228cd7fe43c4"); // replace with your backend URL
+        const res = await fetch( `http://localhost:5000/api/therapies/practitioner/${pracId}`); // replace with your backend URL
         const data = await res.json();
         setTherapiesList(data);
       } catch (error) {
@@ -276,7 +276,11 @@ const AyurvedaDoctorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Therapies</h1>
-        <button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <button 
+        onClick={()=>{
+          window.location.href = "/Add-therapy";
+        }}
+         className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
           <Plus size={20} /> Schedule Therapy
         </button>
       </div>

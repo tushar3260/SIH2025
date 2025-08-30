@@ -10,6 +10,6 @@ r.get("/", listTherapies);
 r.get("/user/:userId", getTherapiesByUserId);
 r.get("/practitioner/:practitionerId", getTherapiesByPractitionerId);
 r.get("/:therapyId", getTherapyByTherapyId);
-r.post("/",  body("name").notEmpty(), body("durationMin").isInt({min:15}), createTherapy);
+r.post("/", createTherapy);
 
 export default r;
