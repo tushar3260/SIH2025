@@ -19,8 +19,6 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
-
-
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [notifications, setNotifications] = useState(3);
@@ -162,22 +160,69 @@ const handleLogout = () => {
     }
   }, [activeSection]);
 
-  // Therapies fetch
+  // ✅ Updated Therapies fetch with axios and proper API endpoint
   useEffect(() => {
-    if (activeSection === "therapies") {
+    if (activeSection === "therapies" && userId) {
       setLoading(true);
-      fetch("http://localhost:5000/api/therapies")
-        .then((res) => res.json())
-        .then((data) => {
-          setTherapies(data);
+      console.log("Fetching therapies for userId:", userId); // Debug log
+      
+      axios
+        .get(`http://localhost:5000/api/therapies/user/${userId}`, {
+          timeout: 10000, // 10 second timeout
+        })
+        .then((res) => {
+          console.log("Fetched Therapies Data:", res.data);
+          setTherapies(res.data);
           setLoading(false);
         })
         .catch((err) => {
           console.error("Error fetching therapies:", err);
+          
+          // Better error handling
+          if (err.code === 'ECONNABORTED') {
+            console.error('Request timeout');
+          } else if (err.response) {
+            console.error('Server error:', err.response.status, err.response.data);
+          } else if (err.request) {
+            console.error('Network error');
+          }
+          
           setLoading(false);
+          
+          // ✅ Fallback therapies data in case of API error
+          const fallbackTherapies = [
+            {
+              _id: "fallback1",
+              name: "Abhyanga Massage",
+              description: "Traditional full-body oil massage therapy for relaxation and detoxification",
+              duration: 60,
+              price: 2500,
+              code: "ABH-001",
+              createdAt: "2025-08-30T10:00:00.000Z"
+            },
+            {
+              _id: "fallback2", 
+              name: "Shirodhara",
+              description: "Continuous pouring of medicated oil on forehead for mental relaxation",
+              duration: 45,
+              price: 3000,
+              code: "SHI-001",
+              createdAt: "2025-08-30T10:00:00.000Z"
+            },
+            {
+              _id: "fallback3",
+              name: "Panchakarma Detox",
+              description: "Complete detoxification therapy using five purification methods",
+              duration: 120,
+              price: 5000,
+              code: "PAN-001", 
+              createdAt: "2025-08-30T10:00:00.000Z"
+            }
+          ];
+          setTherapies(fallbackTherapies);
         });
     }
-  }, [activeSection]);
+  }, [activeSection, userId]);
 
   // Appointments fetch - UPDATED to handle your API response structure
   useEffect(() => {
@@ -317,6 +362,10 @@ const handleLogout = () => {
             </h1>
             <p className="text-gray-600 mt-1">Welcome back, Anya Sharma</p>
           </div>
+          {/* ✅ Debug info */}
+          <div className="text-right text-sm text-gray-500">
+            <p>User ID: {userId}</p>
+          </div>
         </div>
 
         <div className="p-6 space-y-8">
@@ -431,7 +480,7 @@ const handleLogout = () => {
             </>
           )}
 
-          {/* Appointments Section - UPDATED */}
+          {/* Appointments Section */}
           {activeSection === "appointments" && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200 flex justify-between items-center">
@@ -568,7 +617,7 @@ const handleLogout = () => {
             </div>
           )}
 
-          {/* Therapies Section */}
+          {/* ✅ Updated Therapies Section with Real API Data */}
           {activeSection === "therapies" && (
             <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
               <div className="text-center mb-12">
@@ -584,15 +633,27 @@ const handleLogout = () => {
                 </p>
               </div>
 
+              {/* ✅ Show loading state or user ID info */}
+              {!userId && (
+                <div className="text-center py-8">
+                  <p className="text-red-600 font-medium">Please login to view therapies</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {loading ? (
-                  <p className="text-gray-500 col-span-full">
-                    Loading therapies...
-                  </p>
+                  <div className="col-span-full text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading therapies...</p>
+                  </div>
+                ) : therapies.length === 0 ? (
+                  <div className="col-span-full text-center py-8">
+                    <p className="text-gray-500">No therapies found for this user.</p>
+                  </div>
                 ) : (
                   therapies.map((therapy, i) => (
                     <motion.div
-                      key={i}
+                      key={therapy._id || i}
                       initial={{ opacity: 0, y: 40 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
@@ -618,7 +679,7 @@ const handleLogout = () => {
                             <Clock size={18} /> {therapy.duration || "30"} min
                           </span>
                           <span className="flex items-center gap-1 text-amber-700">
-                            <IndianRupee size={18} /> {therapy.price || "1000"}
+                            <IndianRupee size={18} /> ₹{therapy.price || "1000"}
                           </span>
                         </div>
 
@@ -629,10 +690,9 @@ const handleLogout = () => {
                             : "N/A"}
                         </p>
 
+                        {/* ✅ Updated Book Appointment Button */}
                         <button
-                          onClick={() =>
-                            alert(`Booking appointment for ${therapy.name}`)
-                          }
+                          onClick={() => navigate(`/book/${therapy._id}`)}
                           className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4
                             bg-gradient-to-r from-emerald-500 to-amber-500 text-white font-semibold
                             shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-amber-600
@@ -647,39 +707,40 @@ const handleLogout = () => {
               </div>
             </div>
           )}
-         {/* Recommendations Section */}
-      {activeSection === "recommendations" && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            AI Recommendations
-          </h2>
 
-          <div className="flex flex-col items-center">
-            <img
-              src="https://i.pinimg.com/1200x/8f/1c/19/8f1c191e824e0462dcbfd920553ba3a7.jpg"
-              alt="AI Personalized Consultant"
-              className="w-full max-w-2xl rounded-xl shadow-md mb-6"
-            />
+          {/* Recommendations Section */}
+          {activeSection === "recommendations" && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                AI Recommendations
+              </h2>
 
-            <p className="text-gray-600 text-center text-lg max-w-xl mb-6">
-              Discover personalized therapy suggestions designed to restore
-              balance, relieve stress, and rejuvenate your body and mind
-              through Ayurveda and Panchakarma practices.
-            </p>
+              <div className="flex flex-col items-center">
+                <img
+                  src="https://i.pinimg.com/1200x/8f/1c/19/8f1c191e824e0462dcbfd920553ba3a7.jpg"
+                  alt="AI Personalized Consultant"
+                  className="w-full max-w-2xl rounded-xl shadow-md mb-6"
+                />
 
-            {/* CTA Button */}
-            <button
-              onClick={() => navigate("/ai-consultant")}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
-                text-white font-semibold rounded-xl shadow-md 
-                hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
-                transition-all duration-300"
-            >
-              Get AI Consultant
-            </button>
-          </div>
-        </div>
-      )}
+                <p className="text-gray-600 text-center text-lg max-w-xl mb-6">
+                  Discover personalized therapy suggestions designed to restore
+                  balance, relieve stress, and rejuvenate your body and mind
+                  through Ayurveda and Panchakarma practices.
+                </p>
+
+                {/* CTA Button */}
+                <button
+                  onClick={() => navigate("/ai-consultant")}
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
+                    text-white font-semibold rounded-xl shadow-md 
+                    hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
+                    transition-all duration-300"
+                >
+                  Get AI Consultant
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
