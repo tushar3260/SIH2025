@@ -10,7 +10,7 @@ import Therapies from "./pages/Therapies";
 import BookAppointment from "./pages/BookAppointment";
 import { UserProvider } from "./context/userContext";
 import CreateTherapyForm from "./pages/CreateTherapyForm";
-import UserProvider from "./context/UserContext";
+
 import PractitionerForm from "./pages/PractitionerForm";
 // import UserProvider from "./context/UserContext";
 import Record from "./pages/Record";
@@ -32,7 +32,12 @@ const App = () => {
         <Route path="/therapies" element={<Therapies />} />
         <Route path="/therapy" element={<TherapyPage />} />
         <Route path="/record" element={<Record />} />
-        <Route path="/doctor-dashboard" element={<AyurvedaDoctorDashboard />} />
+        <Route path="/doctor-dashboard" element={
+          <UserProvider>
+            <AyurvedaDoctorDashboard />
+          </UserProvider>
+          
+        } />
         <Route
           path="/create-therapy"
           element={
