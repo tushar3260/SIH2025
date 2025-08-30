@@ -25,9 +25,13 @@ const PractitionerForm = ({ userId, onSuccess }) => {
         specialty: [formData.specialty],
         availability: formData.availability,
       });
+      console.log(res.data)
+      localStorage.setItem("practioner",JSON.stringify(res.data))
+      
 
       setSuccess(true);
       setLoading(false);
+      localStorage.setItem("part")
       if (onSuccess) onSuccess(res.data);
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Leaf, Mail, Lock, ArrowRight, User, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { Navigate } from "react-router-dom";
+import { useUser } from "../context/userContext"; 
 
 const LoginPage = () => {
+   const { user, setUser } = useUser();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -11,6 +14,10 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [rememberMe, setRememberMe] = useState(false);
+
+  if (user) {
+    return <Navigate to={user.role === "practitioner" ? "/doctor-dashboard" : "/dashboard"} replace />;
+  }
 
   const handleInputChange = (e) => {
     setFormData({
@@ -50,49 +57,34 @@ const LoginPage = () => {
   setMessage({ type: '', text: '' });
 
   try {
-    // Real API call using Axios
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/user/login`,
-      formData
-    );
-   localStorage.setItem('token', response.data.token);
-   localStorage.setItem('user', JSON.stringify(response.data.user));
-    // Example: API returns { success: true, message: "...", token: "..." }
-    const k =JSON.parse(localStorage.getItem('user'));
-    console.log(k);
-    
-    if (response.data.success) {
-      setMessage({ type: 'success', text: response.data.message || 'Login successful! Redirecting...' });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/user/login`,
+        formData
+      );
 
-      // Store token in localStorage if needed
-      localStorage.setItem('token', response.data.token);
-      console.log(k.role);
+      if (response.data.success) {
+        // ✅ Save to context and localStorage
+        setUser(response.data.user);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("token", response.data.token);
 
-      // Redirect after success
-      setTimeout(() => {
-        if(k.role==="practitioner"){
-          window.location.href = '/doctor-dashboard';
-        }
-        else{
-          window.location.href = '/dashboard';
-        }
-        
-      }, 1500);
-    } else {
-      setMessage({ type: 'error', text: response.data.message || 'Invalid email or password. Please try again.' });
+        setMessage({ type: 'success', text: response.data.message || 'Login successful! Redirecting...' });
+
+        // ✅ Redirect happens because of <Navigate> at the top once user is set
+      } else {
+        setMessage({ type: 'error', text: response.data.message || 'Invalid email or password. Please try again.' });
+      }
+
+    } catch (error) {
+      console.error(error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Something went wrong. Please try again.'
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-  } catch (error) {
-    console.error(error);
-    setMessage({
-      type: 'error',
-      text: error.response?.data?.message || 'Something went wrong. Please try again.'
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const handleForgotPassword = () => {
     if (!formData.email.trim()) {
