@@ -58,15 +58,25 @@ const LoginPage = () => {
    localStorage.setItem('token', response.data.token);
    localStorage.setItem('user', JSON.stringify(response.data.user));
     // Example: API returns { success: true, message: "...", token: "..." }
+    const k =JSON.parse(localStorage.getItem('user'));
+    console.log(k);
+    
     if (response.data.success) {
       setMessage({ type: 'success', text: response.data.message || 'Login successful! Redirecting...' });
 
       // Store token in localStorage if needed
       localStorage.setItem('token', response.data.token);
+      console.log(k.role);
 
       // Redirect after success
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        if(k.role==="practitioner"){
+          window.location.href = '/doctor-dashboard';
+        }
+        else{
+          window.location.href = '/dashboard';
+        }
+        
       }, 1500);
     } else {
       setMessage({ type: 'error', text: response.data.message || 'Invalid email or password. Please try again.' });

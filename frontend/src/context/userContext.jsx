@@ -26,3 +26,5 @@ export const UserProvider = ({ children }) => {
 
 // Custom Hook for using context
 export const useUser = () => useContext(UserContext);
+
+export default UserProvider;
