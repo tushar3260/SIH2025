@@ -591,32 +591,7 @@ const handleLogout = () => {
             </div>
           )}
 
-          {/* Records Section */}
-          {activeSection === "records" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Patient Records
-              </h2>
-              {loading ? (
-                <p className="text-gray-500">Loading records...</p>
-              ) : (
-                <ul className="space-y-4">
-                  {records.map((rec) => (
-                    <li
-                      key={rec.id}
-                      className="p-4 border rounded-lg hover:shadow transition"
-                    >
-                      <h3 className="font-semibold text-gray-900">
-                        {rec.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm">{rec.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
+          
           {/* ✅ Updated Therapies Section with Real API Data */}
           {activeSection === "therapies" && (
             <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
