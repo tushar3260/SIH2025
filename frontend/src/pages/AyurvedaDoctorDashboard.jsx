@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, MoreVertical, Play, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Home, Users, Heart, UserCheck, BarChart3, Plus, Calendar, Clock, Star, TrendingUp, Play, CheckCircle, DollarSign } from 'lucide-react';
 
 const AyurvedaDoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [therapiesList, setTherapiesList] = useState([]);
+  const [loadingTherapies, setLoadingTherapies] = useState(true);
 
+  // --- Sidebar ---
   const sidebarItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'patients', icon: Users, label: 'Patients' },
@@ -12,6 +15,7 @@ const AyurvedaDoctorDashboard = () => {
     { id: 'reports', icon: BarChart3, label: 'Reports' }
   ];
 
+  // --- Static Data ---
   const todaysAppointments = [
     {
       id: 1,
@@ -47,14 +51,23 @@ const AyurvedaDoctorDashboard = () => {
     { patient: 'Rohan Verma', therapy: 'Shirodhara', progress: 40, timeRemaining: '35 min', therapist: 'Arjun Sharma' }
   ];
 
-  const therapiesList = [
-    { id: 1, name: 'Abhyanga', patients: 12 },
-    { id: 2, name: 'Shirodhara', patients: 8 },
-    { id: 3, name: 'Swedana', patients: 5 },
-    { id: 4, name: 'Nasya', patients: 6 },
-  ];
+  // --- Fetch Therapies from Backend ---
+  useEffect(() => {
+    const fetchTherapies = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/therapies'); // replace with your backend URL
+        const data = await res.json();
+        setTherapiesList(data);
+      } catch (error) {
+        console.error('Error fetching therapies:', error);
+      } finally {
+        setLoadingTherapies(false);
+      }
+    };
+    fetchTherapies();
+  }, []);
 
-  // --- DASHBOARD ---
+  // --- Render Sections ---
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Header */}
@@ -201,7 +214,7 @@ const AyurvedaDoctorDashboard = () => {
     </div>
   );
 
-  // --- PATIENTS ---
+  // --- Patients Section ---
   const renderPatients = () => (
     <div className="space-y-6">
       <h1 className="text-4xl font-bold text-gray-900 mb-2">Patients</h1>
@@ -209,25 +222,60 @@ const AyurvedaDoctorDashboard = () => {
     </div>
   );
 
-  // --- THERAPIES ---
-  const renderTherapies = () => (
+  // --- Therapies Section (Updated) ---
+  const renderTherapies = () => {
+  if (loadingTherapies) {
+    return <p className="text-center py-20 text-gray-500">Loading therapies...</p>;
+  }
+
+  return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Therapies</h1>
-        <button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-200 shadow-lg">
+        <button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
           <Plus size={20} /> Schedule Therapy
         </button>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {therapiesList.map((therapy) => (
-          <div key={therapy.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <p className="font-semibold text-gray-900 mb-2">{therapy.name}</p>
-            <p className="text-gray-500 text-sm">{therapy.patients} patients scheduled</p>
+          <div
+            key={therapy._id}
+            className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
+          >
+            <h2 className="text-xl font-bold text-gray-900 mb-2">{therapy.name}</h2>
+            <p className="text-gray-500 text-sm mb-4">{therapy.description}</p>
+
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-400 font-medium">Code:</span>
+              <span className="font-medium text-gray-900">{therapy.code}</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-400 font-medium flex items-center gap-1">
+                <Clock size={14} /> Duration
+              </span>
+              <span className="font-medium text-gray-900">{therapy.duration} min</span>
+            </div>
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-gray-400 font-medium flex items-center gap-1">
+                <Star size={14} /> Price
+              </span>
+              <span className="font-medium text-gray-900">${therapy.price}</span>
+            </div>
+            {therapy.patients !== undefined && (
+              <p className="text-gray-500 text-sm mb-4">{therapy.patients} patients scheduled</p>
+            )}
+
+            <button className="w-full bg-emerald-500 hover:bg-emerald-600 py-2 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+              Book Now
+            </button>
           </div>
         ))}
       </div>
     </div>
   );
+};
+
 
   const renderContent = () => {
     switch (activeTab) {
