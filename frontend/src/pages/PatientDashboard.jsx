@@ -14,7 +14,6 @@ import {
   FileText,
   CloudCog,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Leaf, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -237,18 +236,7 @@ const PatientDashboard = () => {
       {/* Sidebar */}
       <div className="w-80 bg-white shadow-lg flex flex-col">
         <div className="p-6 border-b border-gray-200 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-green-100 to-amber-100">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-green-100 to-amber-100">
-                <Leaf className="w-5 h-5 text-green-700" />
-              </div>
-              <div>
-                <div className="text-xl font-extrabold tracking-tight text-green-600">
-                  AyurSutra
-                </div>
-              </div>
-            </Link>
-          </div>
+          zz
         </div>
 
         <div className="flex-1 p-4 space-y-2">
@@ -293,34 +281,12 @@ const PatientDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="bg-gradient-to-r from-green-50 to-emerald-100 shadow-md border-b border-emerald-200 p-6 flex justify-between items-center rounded-b-2xl">
-          {/* Left: Title + Subtitle */}
+        <div className="bg-white shadow-sm border-b border-gray-200 p-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
+            <h1 className="text-3xl font-bold text-gray-900">
               Patient Dashboard
             </h1>
-            <p className="text-emerald-700 mt-1 text-sm md:text-base">
-              Welcome back, <span className="font-semibold">Anya Sharma</span>{" "}
-              🌿
-            </p>
-          </div>
-
-          {/* Right: Profile & Notifications */}
-          <div className="flex items-center gap-4">
-            {/* User Avatar */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <img
-                src="https://randomuser.me/api/portraits/women/44.jpg"
-                alt="User Avatar"
-                className="w-20 h-20 rounded-full border-2 border-emerald-600 group-hover:scale-105 transition"
-              />
-              <div className="hidden md:block">
-                <p className="text-sm font-semibold text-gray-800">
-                  Anya Sharma
-                </p>
-                <p className="text-xs text-gray-500">Patient</p>
-              </div>
-            </div>
+            <p className="text-gray-600 mt-1">Welcome back, Anya Sharma</p>
           </div>
         </div>
 
@@ -649,6 +615,39 @@ const PatientDashboard = () => {
                     </motion.div>
                   ))
                 )}
+              </div>
+            </div>
+          )}
+          {/* Recommendations Section */}
+          {activeSection === "recommendations" && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                AI Recommendations
+              </h2>
+
+              <div className="flex flex-col items-center">
+                <img
+                  src="https://i.pinimg.com/1200x/8f/1c/19/8f1c191e824e0462dcbfd920553ba3a7.jpg"
+                  alt="AI Personalized Consultant"
+                  className="w-full max-w-2xl rounded-xl shadow-md mb-6"
+                />
+
+                <p className="text-gray-600 text-center text-lg max-w-xl mb-6">
+                  Discover personalized therapy suggestions designed to restore
+                  balance, relieve stress, and rejuvenate your body and mind
+                  through Ayurveda and Panchakarma practices.
+                </p>
+
+                {/* CTA Button */}
+                <button
+                  onClick={() => alert("Redirecting to AI Consultant...")}
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
+                   text-white font-semibold rounded-xl shadow-md 
+                   hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
+                   transition-all duration-300"
+                >
+                  Get AI Consultant
+                </button>
               </div>
             </div>
           )}

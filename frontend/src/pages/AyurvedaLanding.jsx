@@ -1,5 +1,6 @@
 // src/pages/AyurvedaLanding.jsx
 import React, { useEffect, useState } from "react";
+import axios from 'axios'; // ✅ Import axios
 
 import {
   Award,
@@ -27,9 +28,15 @@ import {
   Lock,
   ArrowRight,
   CheckCircle2,
+  UserCheck,
+  Clock,
+  Badge,
 } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { Link } from "react-router-dom";
+
+// ✅ API Base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const FadeIn = ({ delay = 0, children, className = "" }) => (
   <motion.div
@@ -114,9 +121,101 @@ const Testimonial = ({ name, text, rating = 5, role = "Patient" }) => (
         ))}
       </div>
     </div>
-    <p className="mt-4 text-gray-700 italic leading-relaxed">“{text}”</p>
+    <p className="mt-4 text-gray-700 italic leading-relaxed">"{text}"</p>
   </div>
 );
+
+// ✅ Updated Practitioner Card Component for new data structure
+const PractitionerCard = ({ practitioner }) => {
+  // Extract data from nested structure
+  const name = practitioner.user?.name || 'Unknown Practitioner';
+  const email = practitioner.user?.email || '';
+  const phone = practitioner.user?.phone || '';
+  const specialties = practitioner.specialty || [];
+  const experience = practitioner.user?.experience || practitioner.experience || '5';
+  const qualifications = practitioner.user?.qualifications || practitioner.qualifications || '';
+  const availability = practitioner.availability || [];
+  
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 hover:shadow-lg hover:translate-y-[-2px] transition">
+      <div className="flex items-start gap-4">
+        {/* Avatar */}
+        <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-green-200 to-amber-200 grid place-items-center flex-shrink-0">
+          <UserCheck className="w-8 h-8 text-green-700" />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          {/* Name */}
+          <h3 className="text-xl font-semibold text-gray-900 truncate">{name}</h3>
+          
+          {/* Specialties */}
+          <div className="mt-2">
+            {specialties.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {specialties.map((specialty, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-green-600 font-medium">Ayurveda Specialist</p>
+            )}
+          </div>
+          
+          {/* Experience */}
+          <p className="text-gray-600 text-sm mt-2 flex items-center gap-1">
+            <Badge className="w-4 h-4" />
+            {experience} years experience
+          </p>
+          
+          {/* Qualifications */}
+          {qualifications && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500">Qualifications:</p>
+              <p className="text-sm text-gray-700 line-clamp-2">{qualifications}</p>
+            </div>
+          )}
+          
+          {/* Availability Status */}
+          <div className="mt-3">
+            <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${availability.length > 0 ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <span className="text-xs text-gray-600">
+                {availability.length > 0 ? 'Available' : 'Schedule on request'}
+              </span>
+            </div>
+          </div>
+          
+          {/* Contact Info */}
+          <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
+            {email && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <Mail className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate text-xs">{email}</span>
+              </div>
+            )}
+            {phone && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                <span className="text-xs">{phone}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Book Consultation Button */}
+          <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300">
+            <CalendarCheck2 className="w-4 h-4" />
+            Book Consultation
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AyurvedaLanding = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -129,6 +228,10 @@ const AyurvedaLanding = () => {
     mass: 0.2,
   });
 
+  // ✅ New state for practitioners
+  const [practitioners, setPractitioners] = useState([]);
+  const [practitionersLoading, setPractitionersLoading] = useState(false);
+
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -137,6 +240,26 @@ const AyurvedaLanding = () => {
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // ✅ Fetch practitioners using axios
+  useEffect(() => {
+    const fetchPractitioners = async () => {
+      setPractitionersLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/practitioners/`);
+        console.log("Fetched practitioners:", response.data);
+        setPractitioners(response.data);
+      } catch (error) {
+        console.error("Error fetching practitioners:", error);
+        // ✅ Set fallback data if API fails
+        setPractitioners([]);
+      } finally {
+        setPractitionersLoading(false);
+      }
+    };
+
+    fetchPractitioners();
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -270,6 +393,12 @@ const AyurvedaLanding = () => {
                 Workflow
               </a>
               <a
+                href="#practitioners"
+                className="text-sm font-medium hover:text-green-700"
+              >
+                Practitioners
+              </a>
+              <a
                 href="#services"
                 className="text-sm font-medium hover:text-green-700"
               >
@@ -312,6 +441,7 @@ const AyurvedaLanding = () => {
                 ["#about", "About"],
                 ["#features", "Features"],
                 ["#workflow", "Workflow"],
+                ["#practitioners", "Practitioners"],
                 ["#services", "Services"],
                 ["#contact", "Contact"],
               ].map(([href, label]) => (
@@ -382,7 +512,7 @@ const AyurvedaLanding = () => {
               </Link>
 
               <Link
-                to="/therapies  "
+                to="/therapies"
                 className="inline-flex items-center gap-2 rounded-full border-2 border-green-600 text-green-700 px-7 py-3 text-lg font-semibold hover:bg-green-600 hover:text-white transition"
               >
                 Book Therapy
@@ -400,7 +530,7 @@ const AyurvedaLanding = () => {
               />
               <Stat
                 icon={Users}
-                value="120+"
+                value={practitioners.length > 0 ? `${practitioners.length}+` : "120+"}
                 label="Practitioners"
                 sub="Across clinics"
               />
@@ -426,7 +556,7 @@ const AyurvedaLanding = () => {
                     <div className="rounded-2xl p-4 ring-1 ring-black/5 bg-gradient-to-br from-green-50 to-white">
                       <div className="flex items-center justify-between">
                         <div className="font-semibold text-gray-900">
-                          Today’s Schedule
+                          Today's Schedule
                         </div>
                         <CalendarCheck2 className="w-5 h-5 text-green-700" />
                       </div>
@@ -559,69 +689,68 @@ const AyurvedaLanding = () => {
         </div>
       </section>
 
-   <section className="relative py-24 bg-gradient-to-br from-green-50 to-amber-50 overflow-hidden">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
-      Panchakarma Therapies
-    </h2>
+      <section className="relative py-24 bg-gradient-to-br from-green-50 to-amber-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
+            Panchakarma Therapies
+          </h2>
 
-    <div className="relative w-full overflow-hidden">
-      {/* Sliding container */}
-      <div className="flex animate-slide gap-6">
-        {[
-          "https://i.pinimg.com/1200x/ee/7e/10/ee7e103328cef3b3bafdeff65f2aaf1c.jpg",
-          "https://i.pinimg.com/736x/a3/92/b4/a392b4aea106f5fe753422238a151b97.jpg",
-          "https://i.pinimg.com/736x/18/89/9b/18899b05efcbc98281b97103bcf2a77d.jpg",
-          "https://i.pinimg.com/1200x/ee/2d/0c/ee2d0cb625477da479efa2c13a521e59.jpg",
-          "https://i.pinimg.com/1200x/a7/14/62/a71462da330f0643be0df9b4d7bc8603.jpg",
-          "https://i.pinimg.com/1200x/5d/9d/00/5d9d0079f644cef4f7f87715717ae59c.jpg",
-        ].flatMap((src, i, arr) => [ // 👈 flatMap for duplicate loop
-          <div
-            key={i}
-            className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-          >
-            <img
-              src={src}
-              alt="panchakarma"
-              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-            />
-          </div>,
-          // duplicate immediately after original set
-          i === arr.length - 1 &&
-            arr.map((dupSrc, j) => (
-              <div
-                key={`dup-${j}`}
-                className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-              >
-                <img
-                  src={dupSrc}
-                  alt="panchakarma"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-            )),
-        ])}
-      </div>
-    </div>
-  </div>
+          <div className="relative w-full overflow-hidden">
+            {/* Sliding container */}
+            <div className="flex animate-slide gap-6">
+              {[
+                "https://i.pinimg.com/1200x/ee/7e/10/ee7e103328cef3b3bafdeff65f2aaf1c.jpg",
+                "https://i.pinimg.com/736x/a3/92/b4/a392b4aea106f5fe753422238a151b97.jpg",
+                "https://i.pinimg.com/736x/18/89/9b/18899b05efcbc98281b97103bcf2a77d.jpg",
+                "https://i.pinimg.com/1200x/ee/2d/0c/ee2d0cb625477da479efa2c13a521e59.jpg",
+                "https://i.pinimg.com/1200x/a7/14/62/a71462da330f0643be0df9b4d7bc8603.jpg",
+                "https://i.pinimg.com/1200x/5d/9d/00/5d9d0079f644cef4f7f87715717ae59c.jpg",
+              ].flatMap((src, i, arr) => [ // 👈 flatMap for duplicate loop
+                <div
+                  key={i}
+                  className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                >
+                  <img
+                    src={src}
+                    alt="panchakarma"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                  />
+                </div>,
+                // duplicate immediately after original set
+                i === arr.length - 1 &&
+                  arr.map((dupSrc, j) => (
+                    <div
+                      key={`dup-${j}`}
+                      className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                    >
+                      <img
+                        src={dupSrc}
+                        alt="panchakarma"
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                  )),
+              ])}
+            </div>
+          </div>
+        </div>
 
-  <style jsx>{`
-    .animate-slide {
-      display: flex;
-      width: max-content;
-      animation: slide 30s linear infinite; /* slow & smooth */
-    }
-    @keyframes slide {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-50%);
-      }
-    }
-  `}</style>
-</section>
-
+        <style jsx>{`
+          .animate-slide {
+            display: flex;
+            width: max-content;
+            animation: slide 30s linear infinite; /* slow & smooth */
+          }
+          @keyframes slide {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(-50%);
+            }
+          }
+        `}</style>
+      </section>
 
       {/* Features */}
       <section
@@ -700,6 +829,46 @@ const AyurvedaLanding = () => {
               />
             </FadeIn>
           </div>
+        </div>
+      </section>
+
+      {/* ✅ Updated Practitioners Section */}
+      <section
+        id="practitioners"
+        className="py-20 bg-gradient-to-br from-green-50 to-white"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn delay={0.05} className="text-center mb-14">
+            <h2 className="text-3xl md:text-5xl font-extrabold">
+              Our Expert <span className="text-green-700">Practitioners</span>
+            </h2>
+            <p className="mt-3 text-lg text-gray-700">
+              Meet our certified Ayurveda specialists dedicated to your healing journey.
+            </p>
+          </FadeIn>
+
+          {practitionersLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center gap-3">
+                <Clock className="w-6 h-6 text-green-600 animate-spin" />
+                <span className="text-lg text-gray-600">Loading practitioners...</span>
+              </div>
+            </div>
+          ) : practitioners.length === 0 ? (
+            <div className="text-center py-12">
+              <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-lg text-gray-600">No practitioners available at the moment.</p>
+              <p className="text-sm text-gray-500 mt-2">Please check back later or contact us directly.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {practitioners.map((practitioner, i) => (
+                <FadeIn delay={0.06 * i} key={practitioner._id || i}>
+                  <PractitionerCard practitioner={practitioner} />
+                </FadeIn>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -782,55 +951,54 @@ const AyurvedaLanding = () => {
 
       {/* Contact */}
       <section
-  id="contact"
-  className="relative py-20 bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white overflow-hidden"
->
-  {/* Decorative gradient blobs */}
-  <div className="absolute inset-0 -z-10">
-    <div className="absolute w-72 h-72 bg-amber-400/20 rounded-full blur-3xl top-10 left-10 animate-pulse" />
-    <div className="absolute w-96 h-96 bg-green-400/20 rounded-full blur-3xl bottom-0 right-10 animate-pulse delay-2000" />
-  </div>
-
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-    <FadeIn delay={0.05} className="text-center mb-12">
-      <h2 className="text-3xl md:text-5xl font-extrabold">
-        Begin Your <span className="text-amber-300">Healing Journey</span>
-      </h2>
-      <p className="mt-3 text-lg text-green-100">
-        Book a consultation or request a clinic demo.
-      </p>
-    </FadeIn>
-
-    <div className="grid md:grid-cols-3 gap-8">
-      {[
-        [Phone, "Call Us", "+91 98765 43210"],
-        [Mail, "Email Us", "hello@ayursutra.health"],
-        [MapPin, "Visit Us", "Mathura, Uttar Pradesh"],
-      ].map(([Icon, title, value], i) => (
-        <FadeIn delay={0.06 * i} key={title}>
-          <div className="group text-center rounded-2xl bg-white/10 backdrop-blur-xl p-8 ring-1 ring-white/20 shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1">
-            <div className="flex items-center justify-center">
-              <Icon className="w-12 h-12 mx-auto mb-4 text-amber-300 group-hover:scale-110 transition-transform" />
-            </div>
-            <h3 className="text-xl font-semibold mb-1">{title}</h3>
-            <p className="text-green-100">{value}</p>
-          </div>
-        </FadeIn>
-      ))}
-    </div>
-
-    <FadeIn delay={0.2} className="text-center mt-12">
-      <a
-        href="#"
-        className="inline-flex items-center gap-2 rounded-full bg-amber-300 text-green-900 px-8 py-3 font-semibold shadow-lg hover:shadow-amber-400/50 hover:scale-105 transition transform"
+        id="contact"
+        className="relative py-20 bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white overflow-hidden"
       >
-        Book Free Consultation
-        <ChevronRight className="w-5 h-5" />
-      </a>
-    </FadeIn>
-  </div>
-</section>
+        {/* Decorative gradient blobs */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute w-72 h-72 bg-amber-400/20 rounded-full blur-3xl top-10 left-10 animate-pulse" />
+          <div className="absolute w-96 h-96 bg-green-400/20 rounded-full blur-3xl bottom-0 right-10 animate-pulse delay-2000" />
+        </div>
 
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <FadeIn delay={0.05} className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-extrabold">
+              Begin Your <span className="text-amber-300">Healing Journey</span>
+            </h2>
+            <p className="mt-3 text-lg text-green-100">
+              Book a consultation or request a clinic demo.
+            </p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              [Phone, "Call Us", "+91 98765 43210"],
+              [Mail, "Email Us", "hello@ayursutra.health"],
+              [MapPin, "Visit Us", "Mathura, Uttar Pradesh"],
+            ].map(([Icon, title, value], i) => (
+              <FadeIn delay={0.06 * i} key={title}>
+                <div className="group text-center rounded-2xl bg-white/10 backdrop-blur-xl p-8 ring-1 ring-white/20 shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1">
+                  <div className="flex items-center justify-center">
+                    <Icon className="w-12 h-12 mx-auto mb-4 text-amber-300 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-1">{title}</h3>
+                  <p className="text-green-100">{value}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+          <FadeIn delay={0.2} className="text-center mt-12">
+            <a
+              href="#"
+              className="inline-flex items-center gap-2 rounded-full bg-amber-300 text-green-900 px-8 py-3 font-semibold shadow-lg hover:shadow-amber-400/50 hover:scale-105 transition transform"
+            >
+              Book Free Consultation
+              <ChevronRight className="w-5 h-5" />
+            </a>
+          </FadeIn>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="bg-gray-950 text-white py-12">
@@ -868,6 +1036,11 @@ const AyurvedaLanding = () => {
               <li>
                 <a href="#workflow" className="hover:text-green-400">
                   Workflow
+                </a>
+              </li>
+              <li>
+                <a href="#practitioners" className="hover:text-green-400">
+                  Practitioners
                 </a>
               </li>
               <li>

@@ -1,7 +1,7 @@
 import Practitioner from "../models/Practicioner.js"; // spelling fix
 import User from "../models/User.js";
 
-// ✅ List all practitioners with basic user details
+//  List all practitioners with basic user details
 export const listPractitioners = async (req, res, next) => {
   try {
     const items = await Practitioner.find()
