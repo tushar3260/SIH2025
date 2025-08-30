@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { myAppointments, slots, book, cancel } from "../controllers/appointmentController.js";
+import { myAppointments, slots, book, cancel,getPatientsByDoctorId } from "../controllers/appointmentController.js";
 import { protect, permit } from "../middleware/auth.js";
 import { runValidation } from "../middleware/validation.js";
 import { bookValidation } from "../utils/validation.js";
@@ -9,7 +9,8 @@ const r = Router();
 
 // Patient ke apne appointments
 r.get("/me/:userId", myAppointments);
-
+r.get("/:id", getPatientsByDoctorId);
+// 
 // Practitioner ke slots
 r.get(
   "/slots",

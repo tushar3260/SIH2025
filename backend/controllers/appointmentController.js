@@ -89,6 +89,9 @@ import User from '../models/User.js';
 // import User from '../models/User.js';
 
 
+
+import { notifyDoctor } from "../server.js"; // 👈 yeh add karna
+
 export const book = async (req, res, next) => {
   try {
     const { patientId, therapyId, start, notes } = req.body;
@@ -182,6 +185,12 @@ export const book = async (req, res, next) => {
       })
       .populate('therapy', 'name duration price description');
 
+    // 🚀 Socket.io Notification (Doctor ko real-time notify karo)
+    notifyDoctor(practitionerUser._id, {
+      message: `New appointment booked by ${patient.name} for ${therapy.name} on ${startDate.toLocaleString()}`,
+      appointment: populatedAppointment
+    });
+
     return res.status(201).json({
       message: "Appointment booked successfully",
       appointment: populatedAppointment
@@ -192,6 +201,7 @@ export const book = async (req, res, next) => {
     return res.status(500).json({ error: "Server error: " + err.message });
   }
 };
+
 
 // Cancel appointment
 
@@ -250,3 +260,30 @@ export const cancel = async (req, res, next) => {
   }
 };
 
+// Get all patients for a specific doctor
+export const getPatientsByDoctorId = async (req, res, next) => {
+  try {
+    const doctorId = req.params.id;
+
+    // Find all appointments for this doctor and populate patient info
+    const appointments = await Appointment.find({ practitioner: doctorId })
+      .populate("patient", "name email") // only fetch name & email
+      .populate("therapy", "name duration price"); // optional, therapy info
+
+    if (!appointments.length) {
+      return res.status(404).json({ message: "No patients found for this doctor" });
+    }
+
+    // Extract unique patients (if a patient has multiple appointments)
+    const patientMap = {};
+    appointments.forEach(app => {
+      patientMap[app.patient._id] = app.patient; // key ensures uniqueness
+    });
+
+    const patients = Object.values(patientMap);
+
+    res.status(200).json(patients);
+  } catch (err) {
+    next(err);
+  }
+};
