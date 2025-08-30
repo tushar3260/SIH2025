@@ -27,8 +27,8 @@ const AyurvedaDoctorDashboard = () => {
     { id: 'logout', icon: LogOut, label: 'Logout' }
   ];
 const handleLogout = () => {
-  localStorage.removeItem("user");  // clear user session
-  window.location.href = "/";       // redirect to landing page (change to "/landing" if that's your route)
+  localStorage.removeItem("user");  
+  window.location.href = "/";       
 };
   // Static Data
   const todaysAppointments = [

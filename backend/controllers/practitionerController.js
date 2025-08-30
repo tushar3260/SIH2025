@@ -23,6 +23,7 @@ export const createPractitioner = async (req, res, next) => {
     // check if user exists
     const userExists = await User.findById(user);
     if (!userExists) {
+      console.error("User not found:", user);
       return res.status(400).json({ error: "User not found" });
     }
 
@@ -35,8 +36,10 @@ export const createPractitioner = async (req, res, next) => {
     // populate user data for response
     const populatedDoc = await doc.populate("user", "name email role");
 
+    console.log("Practitioner created:", populatedDoc);
     res.status(201).json(populatedDoc);
   } catch (err) {
+    console.error("Error creating practitioner:", err);
     next(err);
   }
 };
