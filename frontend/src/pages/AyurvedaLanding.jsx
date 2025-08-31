@@ -1,6 +1,7 @@
 // src/pages/AyurvedaLanding.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
+import Loading from "./Loading.jsx"; // ✅ Import loading component
 
 import {
   Award,
@@ -50,6 +51,7 @@ const FadeIn = ({ delay = 0, children, className = "" }) => (
     {children}
   </motion.div>
 );
+
 const u = JSON.parse(localStorage.getItem("user"));
 
 const Stat = ({ icon: Icon, label, value, sub }) => (
@@ -238,6 +240,7 @@ const AyurvedaLanding = () => {
     "https://i.pinimg.com/1200x/a7/14/62/a71462da330f0643be0df9b4d7bc8603.jpg",
     "https://i.pinimg.com/1200x/5d/9d/00/5d9d0079f644cef4f7f87715717ae59c.jpg",
   ];
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -248,9 +251,42 @@ const AyurvedaLanding = () => {
     mass: 0.2,
   });
 
-  // ✅ New state for practitioners
+  // ✅ Fixed practitioners state management
   const [practitioners, setPractitioners] = useState([]);
-  const [practitionersLoading, setPractitionersLoading] = useState(false);
+  const [practitionersLoading, setPractitionersLoading] = useState(false); // Initially false
+  const [practitionersError, setPractitionersError] = useState(null);
+
+  // ✅ Role-based dashboard routing function
+  const getDashboardRoute = () => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const practitionerData = JSON.parse(localStorage.getItem("practioner"));
+    
+    console.log('User Data:', userData);
+    console.log('Practitioner Data:', practitionerData);
+    
+    // Check multiple conditions for practitioner/doctor
+    if (practitionerData && (
+      practitionerData._id || 
+      practitionerData.id || 
+      practitionerData.specialty ||
+      userData?.role === 'practitioner' ||
+      userData?.role === 'doctor'
+    )) {
+      return "/doctor-dashboard";
+    }
+    
+    // Check if user is patient
+    else if (userData && userData._id && (
+      userData.role === 'patient' || 
+      userData.role === 'user' || 
+      !userData.role // Default to patient if no role specified
+    )) {
+      return "/dashboard"; // Patient dashboard
+    }
+    
+    // If no valid user data found
+    return "/login";
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -262,25 +298,67 @@ const AyurvedaLanding = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ✅ Fetch practitioners using axios
+  // ✅ Improved data fetching with proper error handling
   useEffect(() => {
     const fetchPractitioners = async () => {
-      setPractitionersLoading(true);
+      setPractitionersLoading(true); // ✅ Start loading
+      setPractitionersError(null); // ✅ Clear previous errors
+      
       try {
-        const response = await axios.get(`${API_BASE_URL}/practitioners/`);
+        console.log("Starting to fetch practitioners...");
+        
+        // ✅ Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout')), 10000) // 10 seconds
+        );
+        
+        const apiPromise = axios.get(`${API_BASE_URL}/practitioners/`);
+        
+        // ✅ Race between API call and timeout
+        const response = await Promise.race([apiPromise, timeoutPromise]);
+        
         console.log("Fetched practitioners:", response.data);
-        setPractitioners(response.data);
+        setPractitioners(response.data || []);
+        
       } catch (error) {
         console.error("Error fetching practitioners:", error);
-        // ✅ Set fallback data if API fails
+        setPractitionersError(
+          error.message === 'Request timeout' 
+            ? "Request timed out. Please try again." 
+            : "Failed to load practitioners. Please try again."
+        );
         setPractitioners([]);
       } finally {
+        // ✅ Always stop loading, regardless of success/failure
         setPractitionersLoading(false);
+        console.log("Practitioners loading finished");
       }
     };
 
     fetchPractitioners();
-  }, []);
+  }, []); // ✅ Empty dependency array
+
+  // ✅ Manual retry function
+  const retryFetchPractitioners = () => {
+    setPractitionersError(null);
+    setPractitioners([]);
+    
+    // Refetch after a small delay
+    setTimeout(() => {
+      const fetchAgain = async () => {
+        setPractitionersLoading(true);
+        try {
+          const response = await axios.get(`${API_BASE_URL}/practitioners/`);
+          setPractitioners(response.data || []);
+        } catch (error) {
+          setPractitionersError("Still unable to load practitioners.");
+        } finally {
+          setPractitionersLoading(false);
+        }
+      };
+      fetchAgain();
+    }, 500);
+  };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -339,7 +417,7 @@ const AyurvedaLanding = () => {
 
   const testimonials = [
     {
-      name: "Priya Sharma",
+      name: "Tushar arya",
       text: "Seamless booking and caring follow-ups. Panchakarma experience felt organized and safe.",
       rating: 5,
       role: "Patient",
@@ -366,7 +444,7 @@ const AyurvedaLanding = () => {
         className="fixed left-0 right-0 top-0 h-1 origin-left bg-gradient-to-r from-green-600 via-emerald-500 to-amber-500 z-[60]"
       />
 
-      {/* Navbar */}
+      {/* ✅ Updated Navbar with Role-based Dashboard Link */}
       <nav
         className={`fixed w-full z-50 transition-all duration-300 ${
           isScrolled
@@ -430,10 +508,12 @@ const AyurvedaLanding = () => {
               >
                 Contact
               </a>
+              
+              {/* ✅ Updated Dashboard Link with Role-based Routing */}
               <div>
                 {u ? (
                   <Link
-                    to="/dashboard"
+                    to={getDashboardRoute()}
                     className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 text-sm font-semibold shadow hover:shadow-lg transition"
                   >
                     Dashboard
@@ -464,7 +544,7 @@ const AyurvedaLanding = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* ✅ Updated Mobile menu with Role-based Dashboard Link */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white/95 backdrop-blur-md shadow-lg border-t">
             <div className="px-4 py-2 grid gap-3">
@@ -486,14 +566,27 @@ const AyurvedaLanding = () => {
                   {label}
                 </a>
               ))}
-              <Link
-                to="/login"
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2.5 text-sm font-semibold shadow"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Login
-                <ChevronRight className="w-4 h-4" />
-              </Link>
+              
+              {/* ✅ Updated Mobile Dashboard Link */}
+              {u ? (
+                <Link
+                  to={getDashboardRoute()}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2.5 text-sm font-semibold shadow"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2.5 text-sm font-semibold shadow"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Login
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           </div>
         )}
@@ -551,6 +644,18 @@ const AyurvedaLanding = () => {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
+
+            {/* ✅ User Role Display */}
+            {u && (
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-4 py-1.5 ring-1 ring-black/5 shadow-sm">
+                <UserCheck className="w-4 h-4 text-green-700" />
+                <span className="text-sm font-medium text-gray-700">
+                  Logged in as: {
+                    JSON.parse(localStorage.getItem("practioner")) ? 'Practitioner' : 'Patient'
+                  }
+                </span>
+              </div>
+            )}
 
             {/* Stats */}
             <div className="mt-10 grid grid-cols-3 gap-6">
@@ -868,7 +973,7 @@ const AyurvedaLanding = () => {
         </div>
       </section>
 
-      {/* ✅ Updated Practitioners Section */}
+      {/* ✅ Fixed Practitioners Section */}
       <section
         id="practitioners"
         className="py-20 bg-gradient-to-br from-green-50 to-white"
@@ -879,31 +984,52 @@ const AyurvedaLanding = () => {
               Our Expert <span className="text-green-700">Practitioners</span>
             </h2>
             <p className="mt-3 text-lg text-gray-700">
-              Meet our certified Ayurveda specialists dedicated to your healing
-              journey.
+              Meet our certified Ayurveda specialists dedicated to your healing journey.
             </p>
           </FadeIn>
 
+          {/* ✅ Conditional rendering based on loading state */}
           {practitionersLoading ? (
+            // ✅ Show loading component when loading
+            <Loading 
+              message="Loading our expert practitioners..." 
+              show={practitionersLoading}
+              fullScreen={false}
+            />
+          ) : practitionersError ? (
+            // ✅ Show error state with retry option
             <div className="text-center py-12">
-              <div className="inline-flex items-center gap-3">
-                <Clock className="w-6 h-6 text-green-600 animate-spin" />
-                <span className="text-lg text-gray-600">
-                  Loading practitioners...
-                </span>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <UserCheck className="w-6 h-6 text-red-500" />
+                  </div>
+                </div>
+                <h3 className="text-lg font-medium text-red-800 mb-2">
+                  Unable to Load Practitioners
+                </h3>
+                <p className="text-red-600 mb-4 text-sm">{practitionersError}</p>
+                <button 
+                  onClick={retryFetchPractitioners}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Try Again
+                </button>
               </div>
             </div>
           ) : practitioners.length === 0 ? (
+            // ✅ Show empty state
             <div className="text-center py-12">
               <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg text-gray-600">
-                No practitioners available at the moment.
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Please check back later or contact us directly.
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Practitioners Available
+              </h3>
+              <p className="text-gray-600">
+                Our practitioners will be listed here soon. Check back later!
               </p>
             </div>
           ) : (
+            // ✅ Show practitioners when data is loaded successfully
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {practitioners.map((practitioner, i) => (
                 <FadeIn delay={0.06 * i} key={practitioner._id || i}>

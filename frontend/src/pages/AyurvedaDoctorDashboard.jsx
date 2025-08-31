@@ -10,7 +10,7 @@ const AyurvedaDoctorDashboard = () => {
   
   // Add states for patients
   const [patients, setPatients] = useState([]);
-  const [loadingPatients, setLoadingPatients] = useState(false);
+  const [loadingPatients, setLoadingPatients] = useState(true); // ✅ Start with loading true
   const [patientsError, setPatientsError] = useState(null);
   const [notifications, setNotifications] = useState([]);
 
@@ -46,7 +46,7 @@ const AyurvedaDoctorDashboard = () => {
   const todaysAppointments = [
     {
       id: 1,
-      patient: 'Anika Kapoor',
+      patient: 'Tushar Arya',
       time: '10:00 AM - 11:00 AM',
       therapy: 'Abhyanga',
       status: 'scheduled',
@@ -55,7 +55,7 @@ const AyurvedaDoctorDashboard = () => {
     },
     {
       id: 2,
-      patient: 'Rohan Verma',
+      patient: 'Singh',
       time: '11:30 AM - 12:30 PM',
       therapy: 'Shirodhara',
       status: 'in-progress',
@@ -64,7 +64,7 @@ const AyurvedaDoctorDashboard = () => {
     },
     {
       id: 3,
-      patient: 'Priya Singh',
+      patient: 'Shiva',
       time: '2:00 PM - 3:00 PM',
       therapy: 'Swedana',
       status: 'completed',
@@ -101,17 +101,26 @@ const AyurvedaDoctorDashboard = () => {
   }, [doctorId]);
 
   const activeSessions = [
-    { patient: 'Anika Kapoor', therapy: 'Abhyanga', progress: 60, timeRemaining: '25 min', therapist: 'Maya Patel' },
-    { patient: 'Rohan Verma', therapy: 'Shirodhara', progress: 40, timeRemaining: '35 min', therapist: 'Arjun Sharma' }
+    { patient: 'Tushar Arya', therapy: 'Abhyanga', progress: 60, timeRemaining: '25 min', therapist: 'Vartul Arora' },
+    { patient: 'Singh', therapy: 'Shirodhara', progress: 40, timeRemaining: '35 min', therapist: 'Kushagra' }
   ];
 
-  // Fetch Patients from Backend (keeping exactly as is)
+  // ✅ Fetch Patients on Dashboard Load (not just on tab switch)
   useEffect(() => {
-    if (activeTab === 'patients') {
+    if (pracId) {
+      fetchPatients(); // Fetch patients on component mount
+      fetchTherapies(); // Fetch therapies on component mount
+    }
+  }, [pracId]);
+
+  // ✅ Also fetch when patients tab is active (for refresh)
+  useEffect(() => {
+    if (activeTab === 'patients' && pracId) {
       fetchPatients();
     }
   }, [activeTab, pracId]);
 
+  // ✅ Enhanced fetchPatients function
   const fetchPatients = async () => {
     if (!pracId) {
       setPatientsError('Practitioner ID not found');
@@ -161,34 +170,49 @@ const AyurvedaDoctorDashboard = () => {
       } else {
         setPatientsError(err.message || 'An unexpected error occurred');
       }
+      setPatients([]); // ✅ Set empty array on error
     } finally {
       setLoadingPatients(false);
     }
   };
 
-  // Fetch Therapies from Backend (keeping exactly as is)
-  useEffect(() => {
-    const fetchTherapies = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/therapies/practitioner/${pracId}`);
-        const data = await res.json();
-        setTherapiesList(data);
-      } catch (error) {
-        console.error('Error fetching therapies:', error);
-      } finally {
-        setLoadingTherapies(false);
-      }
-    };
-    
-    if (pracId) {
-      fetchTherapies();
+  // ✅ Enhanced fetchTherapies function
+  const fetchTherapies = async () => {
+    if (!pracId) {
+      setLoadingTherapies(false);
+      return;
     }
-  }, [pracId]);
 
-  // All other render functions remain exactly the same...
+    try {
+      setLoadingTherapies(true);
+      const res = await fetch(`http://localhost:5000/api/therapies/practitioner/${pracId}`);
+      const data = await res.json();
+      setTherapiesList(data);
+    } catch (error) {
+      console.error('Error fetching therapies:', error);
+      setTherapiesList([]); // ✅ Set empty array on error
+    } finally {
+      setLoadingTherapies(false);
+    }
+  };
+
+  // ✅ Refresh function for dashboard data
+  const refreshDashboardData = async () => {
+    if (!pracId) return;
+    
+    setLoadingPatients(true);
+    setLoadingTherapies(true);
+    
+    await Promise.all([
+      fetchPatients(),
+      fetchTherapies()
+    ]);
+  };
+
+  // ✅ Updated renderDashboard with dynamic counts and refresh button
   const renderDashboard = () => (
     <div className="space-y-8">
-      {/* Header */}
+      {/* ✅ Updated Header with Refresh Button */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-100 shadow-md border-b border-emerald-200 p-6 flex justify-between items-center rounded-b-2xl">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-emerald-900 tracking-tight">
@@ -200,6 +224,16 @@ const AyurvedaDoctorDashboard = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* ✅ Refresh Button */}
+          <button
+            onClick={refreshDashboardData}
+            disabled={loadingPatients || loadingTherapies}
+            className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            title="Refresh Dashboard Data"
+          >
+            <Activity size={16} className={loadingPatients || loadingTherapies ? 'animate-spin' : ''} />
+          </button>
+          
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiIYxZD7Fw6NhfXKNiIBeah7ibDw0pDwTjqNVF9pvxiMfLY689fTtr2TA&s"
             alt="Doctor Avatar"
@@ -212,7 +246,7 @@ const AyurvedaDoctorDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* ✅ Updated Stats Cards with Dynamic Counts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 border border-blue-200 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between mb-4">
@@ -221,7 +255,14 @@ const AyurvedaDoctorDashboard = () => {
             </div>
             <TrendingUp className="text-blue-500" size={20} />
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{patients.length}</p>
+          {/* ✅ Dynamic Patient Count with Loading State */}
+          <p className="text-3xl font-bold text-gray-900 mb-1">
+            {loadingPatients ? (
+              <span className="animate-pulse">...</span>
+            ) : (
+              Array.isArray(patients) ? patients.length : 0
+            )}
+          </p>
           <p className="text-blue-700 font-medium">Total Patients</p>
         </div>
 
@@ -232,7 +273,14 @@ const AyurvedaDoctorDashboard = () => {
             </div>
             <TrendingUp className="text-emerald-500" size={20} />
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{Array.isArray(therapiesList) ? therapiesList.length : 18}</p>
+          {/* ✅ Dynamic Therapy Count with Loading State */}
+          <p className="text-3xl font-bold text-gray-900 mb-1">
+            {loadingTherapies ? (
+              <span className="animate-pulse">...</span>
+            ) : (
+              Array.isArray(therapiesList) ? therapiesList.length : 0
+            )}
+          </p>
           <p className="text-emerald-700 font-medium">Active Therapies</p>
         </div>
 
@@ -444,7 +492,7 @@ const AyurvedaDoctorDashboard = () => {
     );
   };
 
-  // ✅ FIXED Therapies Section with proper Array check
+  // ✅ FIXED Therapies Section with proper Array check and Method 1 implementation
   const renderTherapies = () => {
     if (loadingTherapies) {
       return (
@@ -457,7 +505,7 @@ const AyurvedaDoctorDashboard = () => {
               }}
               className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <Plus size={20} /> Book Therapy
+              <Plus size={20} /> Create Therapy
             </button>
           </div>
           <p className="text-center py-20 text-gray-500">Loading therapies...</p>
@@ -536,7 +584,9 @@ const AyurvedaDoctorDashboard = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-72 bg-white border-r border-gray-200 flex flex-col py-6 px-4 space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6"><a href="/" className="hover:text">AyurSutra</a></h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <a href="/" className="hover:text-emerald-600 transition-colors">AyurSutra</a>
+        </h2>
         <div className="flex flex-col gap-4">
           {sidebarItems.map(item => (
             <button

@@ -33,16 +33,16 @@ import {
   Pie,
   Cell,
 } from "recharts";
-
+import Loading from "./Loading.jsx";
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [notifications, setNotifications] = useState(3);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [therapies, setTherapies] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [progressData, setProgressData] = useState([]);
   const [therapyProgressData, setTherapyProgressData] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const userId = JSON.parse(localStorage.getItem("user"))?.id;
   const user = JSON.parse(localStorage.getItem("user")); 
   const navigate = useNavigate();
@@ -57,8 +57,6 @@ const PatientDashboard = () => {
   ];
 
   const bottomNavItems = [
-    { id: "settings", icon: Settings, label: "Settings" },
-    { id: "help", icon: HelpCircle, label: "Help" },
     { id: "logout", icon: CloudCog, label: "Logout" }
   ];
 

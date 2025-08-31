@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import Loading from "./pages/Loading";
 import AyurvedaLanding from "./pages/AyurvedaLanding";
 import Login from "./pages/LoginPage";
 import PatientDashboard from "./pages/PatientDashboard";
@@ -23,6 +23,7 @@ const App = () => {
     <UserProvider>
       <Router>
         <Routes>
+
           {/* ✅ Public Routes */}
           <Route path="/" element={<AyurvedaLanding />} />
           <Route path="/login" element={<Login />} />
@@ -37,6 +38,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          
           <Route
             path="/book/:id"
             element={
