@@ -19,16 +19,32 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import HealthInfo from "./HealthInfo";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [notifications, setNotifications] = useState(3);
-  const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [therapies, setTherapies] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [progressData, setProgressData] = useState([]);
+  const [therapyProgressData, setTherapyProgressData] = useState([]);
 
   const userId = JSON.parse(localStorage.getItem("user"))?.id;
+  const user = JSON.parse(localStorage.getItem("user")); 
   const navigate = useNavigate();
 
   const navItems = [
@@ -38,8 +54,6 @@ const PatientDashboard = () => {
     { id: "progress", icon: TrendingUp, label: "Progress" },
     { id: "recommendations", icon: Lightbulb, label: "AI Consultant" },
     { id: "health", icon: Heart, label: "Health Info" },
-    { id: "records", icon: FileText, label: "View Records" },
-    
   ];
 
   const bottomNavItems = [
@@ -75,34 +89,39 @@ const PatientDashboard = () => {
     },
   ];
 
-  const healthMetrics = [
+  // Updated dashboard metrics instead of health metrics
+  const dashboardMetrics = [
     {
-      label: "Sleep Quality",
-      value: "8.2",
-      unit: "/10",
-      trend: "+0.3",
+      label: "Total Appointments",
+      value: appointments.length.toString(),
+      unit: "",
+      trend: appointments.length > 0 ? `+${appointments.length}` : "0",
+      color: "emerald",
+      icon: Calendar,
+    },
+    {
+      label: "Available Therapies",
+      value: therapies.length.toString(),
+      unit: "",
+      trend: therapies.length > 0 ? `${therapies.length} active` : "0 active",
       color: "blue",
+      icon: List,
     },
     {
-      label: "Energy Level",
-      value: "75",
-      unit: "%",
-      trend: "+12%",
+      label: "Completed Sessions",
+      value: appointments.filter(appt => appt.status === 'completed').length.toString(),
+      unit: "",
+      trend: appointments.filter(appt => appt.status === 'completed').length > 0 ? "completed" : "none yet",
       color: "green",
+      icon: Activity,
     },
     {
-      label: "Stress Level",
-      value: "3.1",
-      unit: "/10",
-      trend: "-0.8",
-      color: "orange",
-    },
-    {
-      label: "Digestion",
-      value: "7.8",
-      unit: "/10",
-      trend: "+0.5",
-      color: "purple",
+      label: "Upcoming Sessions",
+      value: appointments.filter(appt => appt.status === 'scheduled' || appt.status === 'confirmed').length.toString(),
+      unit: "",
+      trend: appointments.filter(appt => appt.status === 'scheduled' || appt.status === 'confirmed').length > 0 ? "scheduled" : "none",
+      color: "amber",
+      icon: Clock,
     },
   ];
 
@@ -162,7 +181,7 @@ const PatientDashboard = () => {
     }
   }, [activeSection]);
 
-  // ✅ Updated Therapies fetch with axios and proper API endpoint
+  // Updated Therapies fetch with axios and proper API endpoint
   useEffect(() => {
     if (activeSection === "therapies" && userId) {
       setLoading(true);
@@ -194,14 +213,29 @@ const PatientDashboard = () => {
           }
 
           setLoading(false);
-
         });
     }
   }, [activeSection, userId]);
 
+  // Fetch therapies for dashboard display
+  useEffect(() => {
+    if (activeSection === "dashboard") {
+      axios
+        .get(`http://localhost:5000/api/therapies`, {
+          timeout: 10000,
+        })
+        .then((res) => {
+          setTherapies(res.data);
+        })
+        .catch((err) => {
+          console.error("Error fetching therapies for dashboard:", err);
+        });
+    }
+  }, [activeSection]);
+
   // Appointments fetch - UPDATED to handle your API response structure
   useEffect(() => {
-    if (activeSection === "appointments") {
+    if ((activeSection === "appointments" || activeSection === "progress" || activeSection === "dashboard") && userId) {
       setLoading(true);
       axios
         .get(`http://localhost:5000/api/appointments/me/${userId}`)
@@ -261,6 +295,43 @@ const PatientDashboard = () => {
     }
   }, [activeSection, userId]);
 
+  // Generate Progress Data from appointments
+  useEffect(() => {
+    if (activeSection === "progress" && appointments.length > 0) {
+      // Appointments per date
+      const dateCounts = {};
+      appointments.forEach((appt) => {
+        const date = new Date(appt.date.split('/').reverse().join('-')).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric' 
+        });
+        dateCounts[date] = (dateCounts[date] || 0) + 1;
+      });
+      
+      const chartData = Object.keys(dateCounts)
+        .map((date) => ({ date, appointments: dateCounts[date] }))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      setProgressData(chartData);
+
+      // Therapy type distribution
+      const therapyCounts = {};
+      appointments.forEach((appt) => {
+        therapyCounts[appt.therapyName] = (therapyCounts[appt.therapyName] || 0) + 1;
+      });
+
+      const therapyData = Object.keys(therapyCounts).map((therapy) => ({
+        therapy,
+        count: therapyCounts[therapy],
+      }));
+
+      setTherapyProgressData(therapyData);
+    }
+  }, [activeSection, appointments]);
+
+  // Colors for pie chart
+  const COLORS = ['#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+
   return (
     <div className="flex min-h-screen font-sans bg-gray-50">
       {/* Sidebar */}
@@ -309,7 +380,7 @@ const PatientDashboard = () => {
                 key={item.id}
                 onClick={() => {
                   if (item.id === "logout") {
-                    handleLogout(); // ✅ runs logout function
+                    handleLogout();
                   } else {
                     setActiveSection(item.id);
                   }
@@ -326,65 +397,72 @@ const PatientDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="bg-white shadow-sm border-b border-gray-200 p-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Patient Dashboard
-            </h1>
-            <p className="text-gray-600 mt-1">Welcome back, Anya Sharma</p>
+        {/* Header - Only show on dashboard */}
+        {activeSection === "dashboard" && (
+          <div className="bg-white shadow-sm border-b border-gray-200 p-6 flex justify-center items-center">
+            <div className="flex flex-col items-center justify-center min-h-[8vh] 
+                            bg-gradient-to-r from-emerald-50 via-amber-50 to-white 
+                            rounded-2xl shadow-md py-12 px-6 w-full">
+              <h1 className="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent 
+                             bg-gradient-to-r from-emerald-600 to-amber-600 drop-shadow-lg text-center">
+                Welcome to AyurSutra, {user?.name || "Guest"}!
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-gray-700 font-medium text-center">
+                Embark on your personalized Ayurveda and Panchakarma wellness journey 🌿
+              </p>
+            </div>
           </div>
-          
-        </div>
+        )}
 
         <div className="p-6 space-y-8">
           {/* Dashboard Section */}
           {activeSection === "dashboard" && (
             <>
-              {/* Health Metrics */}
+              {/* Updated Dashboard Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {healthMetrics.map((metric, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <Activity
-                        size={24}
-                        className={`text-${metric.color}-500`}
-                      />
-                      <span
-                        className={`flex items-center gap-1 text-sm font-medium ${
-                          metric.trend.startsWith("+")
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {metric.trend.startsWith("+") ? (
-                          <ArrowUp size={16} />
-                        ) : null}
-                        {metric.trend}
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-gray-600 text-sm font-medium">
-                        {metric.label}
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {metric.value}
-                        <span className="text-lg text-gray-500">
-                          {metric.unit}
+                {dashboardMetrics.map((metric, index) => {
+                  const IconComponent = metric.icon;
+                  return (
+                    <div
+                      key={index}
+                      className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <IconComponent
+                          size={24}
+                          className={`text-${metric.color}-500`}
+                        />
+                        <span
+                          className={`flex items-center gap-1 text-sm font-medium ${
+                            metric.value !== "0"
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {metric.trend}
                         </span>
-                      </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-gray-600 text-sm font-medium">
+                          {metric.label}
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {metric.value}
+                          <span className="text-lg text-gray-500">
+                            {metric.unit}
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Therapy Schedule */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Therapy Schedule
+                    Your Upcoming Appointments
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -409,43 +487,255 @@ const PatientDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {therapySchedule.map((therapy, index) => (
-                        <tr
-                          key={index}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-6 py-4 font-medium text-gray-900">
-                            {therapy.therapy}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-gray-900">{therapy.date}</div>
-                            <div className="text-gray-600 text-sm flex items-center gap-1">
-                              <Clock size={14} />
-                              {therapy.time}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-gray-600">
-                            {therapy.duration}
-                          </td>
-                          <td className="px-6 py-4 text-gray-900">
-                            {therapy.practitioner}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                therapy.status
-                              )}`}
-                            >
-                              {therapy.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {/* Show real appointments if available, otherwise show dummy data */}
+                      {appointments.length > 0 ? (
+                        appointments.slice(0, 3).map((appointment) => (
+                          <tr
+                            key={appointment.id}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-6 py-4 font-medium text-gray-900">
+                              {appointment.therapyName}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-gray-900">{appointment.date}</div>
+                              <div className="text-gray-600 text-sm flex items-center gap-1">
+                                <Clock size={14} />
+                                {appointment.time}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-gray-600">
+                              {appointment.duration}
+                            </td>
+                            <td className="px-6 py-4 text-gray-900">
+                              {appointment.practitioner}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                  appointment.status
+                                )}`}
+                              >
+                                {appointment.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        therapySchedule.map((therapy, index) => (
+                          <tr
+                            key={index}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-6 py-4 font-medium text-gray-900">
+                              {therapy.therapy}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-gray-900">{therapy.date}</div>
+                              <div className="text-gray-600 text-sm flex items-center gap-1">
+                                <Clock size={14} />
+                                {therapy.time}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-gray-600">
+                              {therapy.duration}
+                            </td>
+                            <td className="px-6 py-4 text-gray-900">
+                              {therapy.practitioner}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                  therapy.status
+                                )}`}
+                              >
+                                {therapy.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
+                {/* Show link to view all appointments */}
+                <div className="p-6 border-t border-gray-200 text-center">
+                  <button
+                    onClick={() => setActiveSection("appointments")}
+                    className="text-emerald-600 hover:text-emerald-800 font-medium"
+                  >
+                    View All Appointments →
+                  </button>
+                </div>
+              </div>
+
+              {/* Available Therapies Preview */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Featured Therapies
+                  </h2>
+                  <p className="text-gray-600 mt-1">Popular Ayurveda and Panchakarma treatments</p>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Show real therapies if available, otherwise show dummy data */}
+                    {therapies.length > 0 ? (
+                      therapies.slice(0, 3).map((therapy, index) => (
+                        <div 
+                          key={therapy._id || index}
+                          className="bg-gradient-to-br from-emerald-50 to-amber-50 rounded-lg p-6 hover:shadow-md transition-shadow"
+                        >
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {therapy.name}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {therapy.description || "Ancient Ayurvedic therapy for wellness and healing"}
+                          </p>
+                          <div className="flex justify-between items-center">
+                            <span className="flex items-center gap-1 text-emerald-700 text-sm font-medium">
+                              <Clock size={16} /> {therapy.duration || "30"} min
+                            </span>
+                            <span className="flex items-center gap-1 text-amber-700 text-sm font-medium">
+                              <IndianRupee size={16} /> ₹{therapy.price || "1000"}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      [
+                        { name: "Abhyanga Massage", desc: "Full body oil massage therapy for relaxation and detox", duration: "60", price: "2500" },
+                        { name: "Shirodhara Treatment", desc: "Continuous oil pouring on forehead for mental peace", duration: "45", price: "2000" },
+                        { name: "Swedana Therapy", desc: "Herbal steam bath for toxin elimination", duration: "30", price: "1500" }
+                      ].map((therapy, index) => (
+                        <div 
+                          key={index}
+                          className="bg-gradient-to-br from-emerald-50 to-amber-50 rounded-lg p-6 hover:shadow-md transition-shadow"
+                        >
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {therapy.name}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4">
+                            {therapy.desc}
+                          </p>
+                          <div className="flex justify-between items-center">
+                            <span className="flex items-center gap-1 text-emerald-700 text-sm font-medium">
+                              <Clock size={16} /> {therapy.duration} min
+                            </span>
+                            <span className="flex items-center gap-1 text-amber-700 text-sm font-medium">
+                              <IndianRupee size={16} /> ₹{therapy.price}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={() => setActiveSection("therapies")}
+                      className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-amber-500 
+                        text-white font-semibold rounded-xl shadow-md 
+                        hover:shadow-lg hover:from-emerald-600 hover:to-amber-600 
+                        transition-all duration-300"
+                    >
+                      Explore All Therapies →
+                    </button>
+                  </div>
+                </div>
               </div>
             </>
+          )}
+
+          {/* Progress Section */}
+          {activeSection === "progress" && (
+            <div className="space-y-8">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Progress Overview</h2>
+                
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading progress data...</p>
+                  </div>
+                ) : appointments.length === 0 ? (
+                  <div className="text-center py-12">
+                    <TrendingUp className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                    <p className="text-gray-500 text-lg">No appointment data available yet.</p>
+                    <p className="text-gray-400">Book your first therapy session to see progress!</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Appointments Timeline Chart */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Appointments Timeline</h3>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={progressData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis allowDecimals={false} />
+                          <Tooltip />
+                          <Line 
+                            type="monotone" 
+                            dataKey="appointments" 
+                            stroke="#10B981" 
+                            strokeWidth={3}
+                            dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Therapy Distribution Pie Chart */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Therapy Distribution</h3>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={therapyProgressData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ therapy, percent }) => `${therapy} ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="count"
+                          >
+                            {therapyProgressData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* Progress Summary Stats */}
+                {appointments.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div className="bg-emerald-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-emerald-600 mb-2">
+                        {appointments.length}
+                      </div>
+                      <div className="text-emerald-700 font-medium">Total Sessions</div>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-blue-600 mb-2">
+                        {appointments.filter(a => a.status === 'completed').length}
+                      </div>
+                      <div className="text-blue-700 font-medium">Completed</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-amber-600 mb-2">
+                        {new Set(appointments.map(a => a.therapyName)).size}
+                      </div>
+                      <div className="text-amber-700 font-medium">Therapy Types</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Appointments Section */}
@@ -559,7 +849,7 @@ const PatientDashboard = () => {
             </div>
           )}
 
-          {/* ✅ Updated Therapies Section with Real API Data */}
+          {/* Updated Therapies Section with Real API Data */}
           {activeSection === "therapies" && (
             <div className="p-8 min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-white rounded-xl shadow-sm border border-gray-200">
               <div className="text-center mb-12">
@@ -571,11 +861,11 @@ const PatientDashboard = () => {
                 </div>
                 <p className="mt-3 text-gray-600 text-lg">
                   Explore our curated Panchakarma and Ayurveda therapies for
-                  healing, detox, and rejuvenation 🌿
+                  healing, detox, and rejuvenation
                 </p>
               </div>
 
-              {/* ✅ Show loading state or user ID info */}
+              {/* Show loading state or user ID info */}
               {!userId && (
                 <div className="text-center py-8">
                   <p className="text-red-600 font-medium">
@@ -636,7 +926,7 @@ const PatientDashboard = () => {
                             : "N/A"}
                         </p>
 
-                        {/* ✅ Updated Book Appointment Button */}
+                        {/* Updated Book Appointment Button */}
                         <button
                           onClick={() => navigate(`/book/${therapy._id}`)}
                           className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4
@@ -687,8 +977,51 @@ const PatientDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Health Info Section */}
           {activeSection === "health" && <HealthInfo />}
 
+          {/* Settings Section */}
+          {activeSection === "settings" && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Settings</h2>
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Profile Settings</h3>
+                  <p className="text-gray-600">Manage your account information and preferences.</p>
+                </div>
+                <div className="border-b border-gray-200 pb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Notification Settings</h3>
+                  <p className="text-gray-600">Control how you receive updates and reminders.</p>
+                </div>
+                <div className="border-b border-gray-200 pb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Privacy Settings</h3>
+                  <p className="text-gray-600">Manage your data privacy and security preferences.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Help Section */}
+          {activeSection === "help" && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Help & Support</h2>
+              <div className="space-y-6">
+                <div className="bg-emerald-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-emerald-900 mb-2">📞 Contact Support</h3>
+                  <p className="text-emerald-700">Call us at +91-XXXX-XXXXXX for immediate assistance.</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-blue-900 mb-2">📧 Email Support</h3>
+                  <p className="text-blue-700">Send us an email at support@ayursutra.com</p>
+                </div>
+                <div className="bg-amber-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-amber-900 mb-2">❓ FAQ</h3>
+                  <p className="text-amber-700">Find answers to common questions about our therapies and services.</p>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
