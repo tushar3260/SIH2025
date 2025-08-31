@@ -1,6 +1,6 @@
 // src/pages/AyurvedaLanding.jsx
 import React, { useEffect, useState } from "react";
-import axios from 'axios'; // ✅ Import axios
+import axios from "axios"; // ✅ Import axios
 
 import {
   Award,
@@ -36,7 +36,8 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import { Link } from "react-router-dom";
 
 // ✅ API Base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const FadeIn = ({ delay = 0, children, className = "" }) => (
   <motion.div
@@ -49,6 +50,7 @@ const FadeIn = ({ delay = 0, children, className = "" }) => (
     {children}
   </motion.div>
 );
+const u = JSON.parse(localStorage.getItem("user"));
 
 const Stat = ({ icon: Icon, label, value, sub }) => (
   <div className="rounded-2xl bg-white/80 backdrop-blur p-6 shadow-sm ring-1 ring-black/5 hover:shadow-md transition">
@@ -125,18 +127,19 @@ const Testimonial = ({ name, text, rating = 5, role = "Patient" }) => (
   </div>
 );
 
-
 // ✅ Updated Practitioner Card Component for new data structure
 const PractitionerCard = ({ practitioner }) => {
   // Extract data from nested structure
-  const name = practitioner.user?.name || 'Unknown Practitioner';
-  const email = practitioner.user?.email || '';
-  const phone = practitioner.user?.phone || '';
+  const name = practitioner.user?.name || "Unknown Practitioner";
+  const email = practitioner.user?.email || "";
+  const phone = practitioner.user?.phone || "";
   const specialties = practitioner.specialty || [];
-  const experience = practitioner.user?.experience || practitioner.experience || '5';
-  const qualifications = practitioner.user?.qualifications || practitioner.qualifications || '';
+  const experience =
+    practitioner.user?.experience || practitioner.experience || "5";
+  const qualifications =
+    practitioner.user?.qualifications || practitioner.qualifications || "";
   const availability = practitioner.availability || [];
-  
+
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 hover:shadow-lg hover:translate-y-[-2px] transition">
       <div className="flex items-start gap-4">
@@ -144,11 +147,13 @@ const PractitionerCard = ({ practitioner }) => {
         <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-green-200 to-amber-200 grid place-items-center flex-shrink-0">
           <UserCheck className="w-8 h-8 text-green-700" />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           {/* Name */}
-          <h3 className="text-xl font-semibold text-gray-900 truncate">{name}</h3>
-          
+          <h3 className="text-xl font-semibold text-gray-900 truncate">
+            {name}
+          </h3>
+
           {/* Specialties */}
           <div className="mt-2">
             {specialties.length > 0 ? (
@@ -166,31 +171,37 @@ const PractitionerCard = ({ practitioner }) => {
               <p className="text-green-600 font-medium">Ayurveda Specialist</p>
             )}
           </div>
-          
+
           {/* Experience */}
           <p className="text-gray-600 text-sm mt-2 flex items-center gap-1">
             <Badge className="w-4 h-4" />
             {experience} years experience
           </p>
-          
+
           {/* Qualifications */}
           {qualifications && (
             <div className="mt-3">
               <p className="text-xs text-gray-500">Qualifications:</p>
-              <p className="text-sm text-gray-700 line-clamp-2">{qualifications}</p>
+              <p className="text-sm text-gray-700 line-clamp-2">
+                {qualifications}
+              </p>
             </div>
           )}
-          
+
           {/* Availability Status */}
           <div className="mt-3">
             <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${availability.length > 0 ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  availability.length > 0 ? "bg-green-500" : "bg-gray-400"
+                }`}
+              />
               <span className="text-xs text-gray-600">
-                {availability.length > 0 ? 'Available' : 'Schedule on request'}
+                {availability.length > 0 ? "Available" : "Schedule on request"}
               </span>
             </div>
           </div>
-          
+
           {/* Contact Info */}
           <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
             {email && (
@@ -206,7 +217,7 @@ const PractitionerCard = ({ practitioner }) => {
               </div>
             )}
           </div>
-          
+
           {/* Book Consultation Button */}
           <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300">
             <CalendarCheck2 className="w-4 h-4" />
@@ -419,13 +430,25 @@ const AyurvedaLanding = () => {
               >
                 Contact
               </a>
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 text-sm font-semibold shadow hover:shadow-lg transition"
-              >
-                Login
-                <ChevronRight className="w-4 h-4" />
-              </Link>
+              <div>
+                {u ? (
+                  <Link
+                    to="/dashboard"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 text-sm font-semibold shadow hover:shadow-lg transition"
+                  >
+                    Dashboard
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 text-sm font-semibold shadow hover:shadow-lg transition"
+                  >
+                    Login
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                )}
+              </div>
             </div>
 
             <button
@@ -539,7 +562,9 @@ const AyurvedaLanding = () => {
               />
               <Stat
                 icon={Users}
-                value={practitioners.length > 0 ? `${practitioners.length}+` : "120+"}
+                value={
+                  practitioners.length > 0 ? `${practitioners.length}+` : "120+"
+                }
                 label="Practitioners"
                 sub="Across clinics"
               />
@@ -699,69 +724,69 @@ const AyurvedaLanding = () => {
       </section>
 
       <section className="relative py-24 bg-gradient-to-br from-green-50 to-amber-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
-          Panchakarma Therapies
-        </h2>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-center text-green-700 mb-10">
+            Panchakarma Therapies
+          </h2>
 
-        <div className="relative w-full overflow-hidden">
-          {/* Sliding container */}
-          <div className="flex animate-slide gap-6">
-            {images.flatMap((src, i, arr) => [
-              <div
-                key={i}
-                className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-              >
-                <img
-                  src={src}
-                  alt="panchakarma"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>,
-              i === arr.length - 1 &&
-                arr.map((dupSrc, j) => (
-                  <div
-                    key={`dup-${j}`}
-                    className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
-                  >
-                    <img
-                      src={dupSrc}
-                      alt="panchakarma"
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-                )),
-            ])}
+          <div className="relative w-full overflow-hidden">
+            {/* Sliding container */}
+            <div className="flex animate-slide gap-6">
+              {images.flatMap((src, i, arr) => [
+                <div
+                  key={i}
+                  className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                >
+                  <img
+                    src={src}
+                    alt="panchakarma"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                  />
+                </div>,
+                i === arr.length - 1 &&
+                  arr.map((dupSrc, j) => (
+                    <div
+                      key={`dup-${j}`}
+                      className="w-64 h-40 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
+                    >
+                      <img
+                        src={dupSrc}
+                        alt="panchakarma"
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                  )),
+              ])}
+            </div>
+          </div>
+
+          {/* View More button */}
+          <div className="flex justify-center mt-12">
+            <Link
+              to="/therapies"
+              className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition"
+            >
+              View More
+            </Link>
           </div>
         </div>
 
-        {/* View More button */}
-        <div className="flex justify-center mt-12">
-          <Link
-            to="/therapies"
-            className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition"
-          >
-            View More
-          </Link>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .animate-slide {
-          display: flex;
-          width: max-content;
-          animation: slide 30s linear infinite;
-        }
-        @keyframes slide {
-          from {
-            transform: translateX(0);
+        <style jsx>{`
+          .animate-slide {
+            display: flex;
+            width: max-content;
+            animation: slide 30s linear infinite;
           }
-          to {
-            transform: translateX(-50%);
+          @keyframes slide {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(-50%);
+            }
           }
-        }
-      `}</style>
-    </section>
+        `}</style>
+      </section>
 
       {/* Features */}
       <section
@@ -854,7 +879,8 @@ const AyurvedaLanding = () => {
               Our Expert <span className="text-green-700">Practitioners</span>
             </h2>
             <p className="mt-3 text-lg text-gray-700">
-              Meet our certified Ayurveda specialists dedicated to your healing journey.
+              Meet our certified Ayurveda specialists dedicated to your healing
+              journey.
             </p>
           </FadeIn>
 
@@ -862,14 +888,20 @@ const AyurvedaLanding = () => {
             <div className="text-center py-12">
               <div className="inline-flex items-center gap-3">
                 <Clock className="w-6 h-6 text-green-600 animate-spin" />
-                <span className="text-lg text-gray-600">Loading practitioners...</span>
+                <span className="text-lg text-gray-600">
+                  Loading practitioners...
+                </span>
               </div>
             </div>
           ) : practitioners.length === 0 ? (
             <div className="text-center py-12">
               <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg text-gray-600">No practitioners available at the moment.</p>
-              <p className="text-sm text-gray-500 mt-2">Please check back later or contact us directly.</p>
+              <p className="text-lg text-gray-600">
+                No practitioners available at the moment.
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Please check back later or contact us directly.
+              </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -922,16 +954,8 @@ const AyurvedaLanding = () => {
             value="Clinic-Ready"
             label="Built with practitioners"
           />
-          <Stat
-            icon={ShieldCheck}
-            value="Compliance"
-            label="Consent & audit"
-          />
-          <Stat
-            icon={Bot}
-            value="AI Inside"
-            label="Scheduling & insights"
-          />
+          <Stat icon={ShieldCheck} value="Compliance" label="Consent & audit" />
+          <Stat icon={Bot} value="AI Inside" label="Scheduling & insights" />
         </div>
       </section>
 
