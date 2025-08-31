@@ -8,6 +8,19 @@ import appointmentroutes from './routes/appoinments.js'
 import PracticionerRoutes from "./routes/practitioners.js";
 import recordRoutes from "./routes/record.js"
 import therepyRoutes from "./routes/therapies.js"
+import { notifyBooking } from "./services/notificationService.js";
+
+// const testBooking = async () => {
+//   await notifyBooking({
+//     patientEmail: "aroravartul@gmail.com",
+//     patientName: "Ravi Kumar",
+//     practitionerEmail: "aroravartul5@gmail.com",
+//     when: new Date(),   // abhi ka time
+//   });
+// };
+
+// testBooking();
+
 // import Workspaceoutes from "./routes/workspace.routes.js";
 const app = express();
 app.use(express.json());

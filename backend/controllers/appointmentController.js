@@ -92,6 +92,8 @@ import User from '../models/User.js';
 
 import { notifyDoctor } from "../server.js"; // 👈 yeh add karna
 
+// import { notifyBooking } from "../services/notificationService.js"; // path apne project ka rakhna
+
 export const book = async (req, res, next) => {
   try {
     const { patientId, therapyId, start, notes } = req.body;
@@ -108,7 +110,7 @@ export const book = async (req, res, next) => {
     }
 
     // Get therapy with practitioner user
-    const therapy = await Therapy.findById(therapyId).populate('practitioner');
+    const therapy = await Therapy.findById(therapyId).populate("practitioner");
     if (!therapy) {
       return res.status(400).json({ error: "Therapy not found" });
     }
@@ -118,22 +120,21 @@ export const book = async (req, res, next) => {
     }
 
     const practitionerUser = therapy.practitioner;
-    
+
     // Check if practitioner user has practitioner role
-    if (practitionerUser.role !== 'practitioner') {
+    if (practitionerUser.role !== "practitioner") {
       return res.status(400).json({ error: "Assigned user is not a practitioner" });
     }
 
     // Find or create Practitioner document
     let practitionerDoc = await Practitioner.findOne({ user: practitionerUser._id });
-    
+
     if (!practitionerDoc) {
-      // Create practitioner document if not exists
       practitionerDoc = await Practitioner.create({
         user: practitionerUser._id,
         specialty: ["General"],
         availability: [],
-        breaks: []
+        breaks: [],
       });
       console.log("Created new practitioner document:", practitionerDoc._id);
     }
@@ -145,22 +146,6 @@ export const book = async (req, res, next) => {
     }
 
     const endDate = new Date(startDate.getTime() + therapy.duration * 60000);
-
-    // Optional: check availability (disabled for now)
-    // if (typeof fitsAvailability === "function") {
-    //   const ok = await fitsAvailability(practitionerDoc._id, startDate, endDate);
-    //   if (!ok) {
-    //     return res.status(400).json({ error: "Outside availability or in break" });
-    //   }
-    // }
-
-    // Optional: check conflicts (disabled for now)
-    // if (typeof hasConflict === "function") {
-    //   const clash = await hasConflict(practitionerDoc._id, startDate, endDate);
-    //   if (clash) {
-    //     return res.status(409).json({ error: "Slot already booked" });
-    //   }
-    // }
 
     // Create appointment
     const appointment = await Appointment.create({
@@ -175,32 +160,40 @@ export const book = async (req, res, next) => {
 
     // Populate appointment for response
     const populatedAppointment = await Appointment.findById(appointment._id)
-      .populate('patient', 'name email phone')
+      .populate("patient", "name email phone")
       .populate({
-        path: 'practitioner',
+        path: "practitioner",
         populate: {
-          path: 'user',
-          select: 'name email'
-        }
+          path: "user",
+          select: "name email",
+        },
       })
-      .populate('therapy', 'name duration price description');
+      .populate("therapy", "name duration price description");
 
-    // 🚀 Socket.io Notification (Doctor ko real-time notify karo)
+    // 🚀 Socket.io Notification
     notifyDoctor(practitionerUser._id, {
       message: `New appointment booked by ${patient.name} for ${therapy.name} on ${startDate.toLocaleString()}`,
-      appointment: populatedAppointment
+      appointment: populatedAppointment,
+    });
+
+    // 🚀 Email Notification
+    await notifyBooking({
+      patientEmail: patient.email,
+      patientName: patient.name,
+      practitionerEmail: practitionerUser.email,
+      when: startDate,
     });
 
     return res.status(201).json({
       message: "Appointment booked successfully",
-      appointment: populatedAppointment
+      appointment: populatedAppointment,
     });
-
   } catch (err) {
     console.error("Booking error:", err.message);
     return res.status(500).json({ error: "Server error: " + err.message });
   }
 };
+
 
 
 // Cancel appointment
