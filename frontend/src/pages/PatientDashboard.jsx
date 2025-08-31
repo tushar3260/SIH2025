@@ -34,6 +34,7 @@ import {
   Cell,
 } from "recharts";
 import Loading from "./Loading.jsx";
+
 const PatientDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [notifications, setNotifications] = useState(3);
@@ -43,6 +44,9 @@ const PatientDashboard = () => {
   const [progressData, setProgressData] = useState([]);
   const [therapyProgressData, setTherapyProgressData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const userId = JSON.parse(localStorage.getItem("user"))?.id;
   const user = JSON.parse(localStorage.getItem("user")); 
   const navigate = useNavigate();
@@ -160,6 +164,84 @@ const PatientDashboard = () => {
         hour12: true,
       }),
     };
+  };
+
+  // Function to fetch appointment details
+  const fetchAppointmentDetails = async (appointmentId) => {
+    setModalLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:5000/api/appointments/${appointmentId}`);
+      console.log("Appointment details:", response.data);
+      
+      // Transform the detailed data
+      const appointment = response.data;
+      const detailedAppointment = {
+        id: appointment._id,
+        therapyName: appointment.therapy?.name || "Unknown Therapy",
+        therapyDescription: appointment.therapy?.description || "No description available",
+        therapyPrice: appointment.therapy?.price || 0,
+        therapyDuration: appointment.therapy?.duration || 60,
+        date: formatDateTime(appointment.start).date,
+        time: formatDateTime(appointment.start).time,
+        endTime: formatDateTime(appointment.end).time,
+        duration: `${appointment.therapy?.duration || 60} min`,
+        practitioner: appointment.practitioner?.user?.name || 
+                      appointment.practitioner?.name || 
+                      "Dr. Unknown",
+        practitionerEmail: appointment.practitioner?.user?.email || "N/A",
+        practitionerSpecialization: appointment.practitioner?.specializations?.join(", ") || "Ayurveda Specialist",
+        status: appointment.status,
+        notes: appointment.notes || "",
+        patientNotes: appointment.patientNotes || "No additional notes",
+        createdAt: new Date(appointment.createdAt).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        updatedAt: new Date(appointment.updatedAt).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "long", 
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        bookingId: appointment._id?.slice(-8)?.toUpperCase() || "N/A"
+      };
+      
+      setSelectedAppointment(detailedAppointment);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching appointment details:", error);
+      
+      // Fallback to basic appointment data if detailed fetch fails
+      const basicAppointment = appointments.find(appt => appt.id === appointmentId);
+      if (basicAppointment) {
+        setSelectedAppointment({
+          ...basicAppointment,
+          therapyDescription: "Detailed information not available at the moment",
+          therapyPrice: "Contact for pricing",
+          practitionerEmail: "N/A",
+          practitionerSpecialization: "Ayurveda Specialist",
+          patientNotes: "No additional notes available",
+          createdAt: "Information not available",
+          updatedAt: "Information not available",
+          bookingId: "N/A"
+        });
+        setShowModal(true);
+      } else {
+        alert("Unable to fetch appointment details. Please try again later.");
+      }
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedAppointment(null);
   };
 
   // Records fetch
@@ -818,14 +900,11 @@ const PatientDashboard = () => {
                             </td>
                             <td className="px-6 py-4">
                               <button
-                                className="text-emerald-600 hover:text-emerald-800 text-sm font-medium"
-                                onClick={() =>
-                                  alert(
-                                    `Viewing details for appointment ${appointment.id}`
-                                  )
-                                }
+                                className="text-emerald-600 hover:text-emerald-800 text-sm font-medium transition-colors"
+                                onClick={() => fetchAppointmentDetails(appointment.id)}
+                                disabled={modalLoading}
                               >
-                                View Details
+                                {modalLoading ? "Loading..." : "View Details"}
                               </button>
                             </td>
                           </tr>
@@ -1023,6 +1102,141 @@ const PatientDashboard = () => {
 
         </div>
       </div>
+
+      {/* Appointment Details Modal */}
+      {showModal && selectedAppointment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Appointment Details</h3>
+                
+              </div>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            {modalLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                <p className="text-gray-500">Loading appointment details...</p>
+              </div>
+            ) : (
+              <div className="p-6 space-y-6">
+                {/* Status Badge */}
+                <div className="flex justify-center">
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(selectedAppointment.status)}`}>
+                    {selectedAppointment.status?.toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Therapy Information */}
+                <div className="bg-gradient-to-br from-emerald-50 to-amber-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Therapy Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Therapy Name</p>
+                      <p className="text-lg font-semibold text-gray-900">{selectedAppointment.therapyName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Duration</p>
+                      <p className="text-lg font-semibold text-gray-900">{selectedAppointment.duration}</p>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-gray-600 mb-2">Description</p>
+                      <p className="text-gray-800 leading-relaxed">{selectedAppointment.therapyDescription}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Price</p>
+                      <p className="text-lg font-semibold text-emerald-600 flex items-center gap-1">
+                        <IndianRupee size={18} />
+                        {selectedAppointment.therapyPrice}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule Information */}
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Schedule Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Date</p>
+                      <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <Calendar size={18} />
+                        {selectedAppointment.date}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Time</p>
+                      <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <Clock size={18} />
+                        {selectedAppointment.time} - {selectedAppointment.endTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Practitioner Information */}
+                <div className="bg-purple-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Practitioner Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Name</p>
+                      <p className="text-lg font-semibold text-gray-900">{selectedAppointment.practitioner}</p>
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-gray-600">Specialization</p>
+                      <p className="text-gray-800">{selectedAppointment.practitionerSpecialization}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes Section */}
+                <div className="bg-yellow-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Notes</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Appointment Notes</p>
+                      <p className="text-gray-800">{selectedAppointment.notes || "No appointment notes"}</p>
+                    </div>
+                   
+                  </div>
+                </div>
+
+                
+              
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  {selectedAppointment.status === 'scheduled' && (
+                    <button className="flex-1 bg-red-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-red-700 transition-colors">
+                      Cancel Appointment
+                    </button>
+                  )}
+                  {selectedAppointment.status === 'pending' && (
+                    <button className="flex-1 bg-emerald-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-emerald-700 transition-colors">
+                      Confirm Appointment
+                    </button>
+                  )}
+                  <button 
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-700 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

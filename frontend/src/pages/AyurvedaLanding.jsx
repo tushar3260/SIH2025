@@ -220,11 +220,7 @@ const PractitionerCard = ({ practitioner }) => {
             )}
           </div>
 
-          {/* Book Consultation Button */}
-          <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300">
-            <CalendarCheck2 className="w-4 h-4" />
-            Book Consultation
-          </button>
+          
         </div>
       </div>
     </div>
@@ -1224,7 +1220,7 @@ const AyurvedaLanding = () => {
             <h4 className="text-lg font-semibold mb-3">Contact</h4>
             <ul className="space-y-2 text-gray-400">
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4" /> +91 98765 43210
+                <Phone className="w-4 h-4" /> +91 XXXXXXXXXX
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4" /> hello@ayursutra.health
