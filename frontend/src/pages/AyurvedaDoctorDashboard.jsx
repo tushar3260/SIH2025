@@ -476,14 +476,14 @@ const AyurvedaDoctorDashboard = () => {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                {/* <div className="flex gap-2">
                   <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
                     View Profile
                   </button>
                   <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium">
                     Appointments
                   </button>
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
