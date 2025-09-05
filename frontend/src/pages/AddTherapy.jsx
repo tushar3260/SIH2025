@@ -36,7 +36,7 @@ const AddTherapy = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('http://localhost:5000/api/therapies', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/therapies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

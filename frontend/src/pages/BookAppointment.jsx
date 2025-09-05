@@ -59,7 +59,7 @@ const BookAppointment = () => {
         return;
       }
       try {
-        const res = await axios.get(`http://localhost:5000/api/therapies/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/therapies/${id}`);
         setTherapy(res.data);
       } catch (err) {
         setError(
@@ -122,7 +122,7 @@ const BookAppointment = () => {
       console.log("User data:", userData); // Debug user data
       console.log("Booking payload:", payload); // Debug log
 
-      const response = await axios.post("http://localhost:5000/api/appointments", payload, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/appointments`, payload, {
         timeout: 15000,
         headers: { "Content-Type": "application/json" },
       });

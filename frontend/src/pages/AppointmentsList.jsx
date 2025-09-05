@@ -16,7 +16,7 @@ const AppointmentsList = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:5000/api/appointments/me/${userId}`
+          `${import.meta.env.VITE_API_BASE_URL}/appointments/me/${userId}`
         );
         setAppointments(res.data);
       } catch (err) {

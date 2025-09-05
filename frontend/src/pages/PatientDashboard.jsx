@@ -144,9 +144,10 @@ const PatientDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+ const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/");
+    localStorage.removeItem("practioner");
+    window.location.href = "/";
   };
 
   // Helper function to format date and time
@@ -170,7 +171,7 @@ const PatientDashboard = () => {
   const fetchAppointmentDetails = async (appointmentId) => {
     setModalLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/appointments/${appointmentId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/${appointmentId}`);
       console.log("Appointment details:", response.data);
       
       // Transform the detailed data
@@ -268,7 +269,7 @@ const PatientDashboard = () => {
       console.log("Fetching therapies for userId:", userId); // Debug log
 
       axios
-        .get(`http://localhost:5000/api/therapies`, {
+        .get(`${import.meta.env.VITE_API_BASE_URL}/therapies`, {
           timeout: 10000, // 10 second timeout
         })
         .then((res) => {
@@ -301,7 +302,7 @@ const PatientDashboard = () => {
   useEffect(() => {
     if (activeSection === "dashboard") {
       axios
-        .get(`http://localhost:5000/api/therapies`, {
+        .get(`${import.meta.env.VITE_API_BASE_URL}/therapies`, {
           timeout: 10000,
         })
         .then((res) => {
@@ -318,7 +319,7 @@ const PatientDashboard = () => {
     if ((activeSection === "appointments" || activeSection === "progress" || activeSection === "dashboard") && userId) {
       setLoading(true);
       axios
-        .get(`http://localhost:5000/api/appointments/me/${userId}`)
+        .get(`${import.meta.env.VITE_API_BASE_URL}/appointments/me/${userId}`)
         .then((res) => {
           console.log("Fetched Appointments Data:", res.data);
 

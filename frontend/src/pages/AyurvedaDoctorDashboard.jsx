@@ -134,7 +134,7 @@ const AyurvedaDoctorDashboard = () => {
 
       console.log('Fetching patients for practitioner:', pracId);
 
-      const response = await axios.get(`http://localhost:5000/api/appointments/68b27b0f2a074e28c056694b`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/68b27b0f2a074e28c056694b`);
       console.log('Appointments Response:', response.data);
 
       // Extract unique patients from appointments
@@ -185,7 +185,7 @@ const AyurvedaDoctorDashboard = () => {
 
     try {
       setLoadingTherapies(true);
-      const res = await fetch(`http://localhost:5000/api/therapies/practitioner/${pracId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/therapies/practitioner/${pracId}`);
       const data = await res.json();
       setTherapiesList(data);
     } catch (error) {

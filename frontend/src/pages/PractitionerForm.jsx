@@ -22,7 +22,7 @@ const PractitionerForm = ({ userId, onSuccess }) => {
     userId = JSON.parse(localStorage.getItem('user')).id;
 
     try {
-      const res = await axios.post("http://localhost:5000/api/practitioners", {
+      const res = await axios.post("${import.meta.env.VITE_API_BASE_URL}/practitioners", {
         user: userId, 
         specialty: [formData.specialty],
         availability: formData.availability,

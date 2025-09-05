@@ -12,26 +12,26 @@ export default function RecordsPage() {
   }, []);
 
   const fetchRecords = async () => {
-    const res = await axios.get("http://localhost:5000/api/records");
+    const res = await axios.get("${import.meta.env.VITE_API_BASE_URL}/records");
     setRecords(res.data);
   };
 
   // Add Record
   const handleAdd = async () => {
-    await axios.post("http://localhost:5000/api/records", form);
+    await axios.post("${import.meta.env.VITE_API_BASE_URL}/records", form);
     setForm({ name: "", email: "", phone: "" });
     fetchRecords();
   };
 
   // Delete Record
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/api/records/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/records/${id}`);
     fetchRecords();
   };
 
   // Update Record
   const handleUpdate = async () => {
-    await axios.put(`http://localhost:5000/api/records/${editingId}`, form);
+    await axios.put(`${import.meta.env.VITE_API_BASE_URL}/records/${editingId}`, form);
     setEditingId(null);
     setForm({ name: "", email: "", phone: "" });
     fetchRecords();
